@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>login</title>
+        
+        <!-- Materialize CSS CDN -->
+         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+        <!-- Material Icons -->
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <!-- 공통 CSS -->
+        <link rel="stylesheet" href="../../styles/common.css"></link>
+        <!-- 게시글 리스트 페이지 CSS -->
+        <link rel="stylesheet" href="./post-list.css">
+     
+    </head>
+    <body>
+        <header></header>
+        <main class="container">
+            <div class="row">
+                <div class="col s12 m8 offset-m2 l6 offset-l3">
+                    <div class="post-edit">
+                        <button class="btn waves-effect waves-light purple lighten-4" type="submit">
+                            게시글 작성
+                        </button>
+                    </div>
+                    <div class="post-list" id="post-list">
+
+                    </div>
+                </div>
+            </div>
+        </main>
+         <!-- Materialize JS CDN -->
+         <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+         <!-- 공통 JS -->
+         <script src="../../utils/common.js"></script>
+         <!-- login.js -->
+         <script type="module" src="post-list.js"></script>
+    </body>
+</html>
