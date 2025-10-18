@@ -1,0 +1,35 @@
+/* 로그인 카드 스타일 */
+.card {
+    margin-top: 30px;
+  }
+  
+  .card-title {
+    font-size: 2rem;
+    font-weight: 500;
+    margin-bottom: 20px;
+    display: block;
+  }
+  
+  /* 로그인 폼 버튼 */
+  #login-form button {
+    margin-top: 20px;
+  }
+  
+  /* 로그인 링크 */
+  .card-action a {
+    color: #9c27b0;
+  }
+  
+  .card-action a:hover {
+    text-decoration: underline;
+  }
+  
+  /* 입력 필드 포커스 */
+  .input-field input:focus {
+    border-bottom: 1px solid #ce93d8;
+    box-shadow: 0 1px 0 0 #ce93d8 ;
+  }
+  
+  .input-field input:focus + label {
+    color: #ce93d8;
+  }
