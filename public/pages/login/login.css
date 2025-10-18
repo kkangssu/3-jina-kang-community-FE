@@ -1,35 +1,55 @@
-/* 로그인 카드 스타일 */
-.card {
-    margin-top: 30px;
-  }
+.login-container {
+  display: flex;
+  align-items: center;
+}
+
+.login-container .row {
+  width: 100%; /* row가 전체 너비를 유지하도록 */
+}
+
+.login-container .card {
+  margin-top: 0;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+#login-form .btn {
+  width: 100%;
+}
   
-  .card-title {
-    font-size: 2rem;
-    font-weight: 500;
-    margin-bottom: 20px;
-    display: block;
-  }
+.card-title {
+  font-size: 2rem;
+  font-weight: 500;
+  margin-bottom: 16px;
+  display: block;
+}
   
-  /* 로그인 폼 버튼 */
-  #login-form button {
-    margin-top: 20px;
-  }
-  
-  /* 로그인 링크 */
-  .card-action a {
-    color: #9c27b0;
-  }
-  
-  .card-action a:hover {
-    text-decoration: underline;
-  }
-  
-  /* 입력 필드 포커스 */
-  .input-field input:focus {
-    border-bottom: 1px solid #ce93d8;
-    box-shadow: 0 1px 0 0 #ce93d8 ;
-  }
-  
-  .input-field input:focus + label {
-    color: #ce93d8;
-  }
+.card-action {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  border-top: none !important;
+}
+
+.card-action a {
+margin: 0 !important; /* 중복 제거 */
+}
+
+.card-action a:hover {
+text-decoration: underline;
+}
+
+.card-action span {
+margin: 0 16px; /* 하나로 통일 */
+}
+
+/* 입력 필드 포커스 */
+.input-field input:focus {
+border-bottom: 1px solid #ce93d8;
+box-shadow: 0 1px 0 0 #ce93d8;
+}
+
+.input-field input:focus + label {
+color: #ce93d8;
+}
