@@ -1,4 +1,5 @@
 import { getPostList } from '../../utils/api.js';
+import { formatDateTime } from '../../utils/common.js';
 
 let currentCursor = null;
 let isLoading = false;
@@ -14,16 +15,7 @@ function setCreatePostButton() {
     });
 }
 
-// 날짜 포맷팅
-function formatDateTime(dateTime) {
-    const date = new Date(dateTime);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    return `${year}-${month}-${day} ${hours}:${minutes}`;
-}
+
 
 // 게시글 카드
 function createPostCard(post) {
@@ -48,17 +40,9 @@ function createPostCard(post) {
     `;
     
     card.addEventListener('click', () => {
-        window.location.href = `./post-detail.html?postId=${post.postId}`;
+        window.location.href = `../post-detail/post-detail.html?postId=${post.postId}`;
     });
     return card;
-}
-
-// 게시글 목록 DOM 추가
-function appendPostList(posts) {
-    posts.forEach(post => {
-        const card = createPostCard(post);
-        postList.appendChild(card);
-    });
 }
 
 // 게시글 목록 조회
@@ -74,7 +58,7 @@ async function fetchPostList() {
             postList.innerHTML = '<div class="no-post">게시글이 없습니다.</div>';
             return;
         }
-        appendPostList(response.data);
+        renderPostList(response.data);
 
         currentCursor = response.nextCursor;
         hasNext = response.hasNext;
@@ -84,6 +68,14 @@ async function fetchPostList() {
     } finally {
         isLoading = false;
     }
+}
+
+// 게시글 목록 렌더링
+function renderPostList(posts) {
+    posts.forEach(post => {
+        const card = createPostCard(post);
+        postList.appendChild(card);
+    });
 }
 
 // 무한 스크롤
