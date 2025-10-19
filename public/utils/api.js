@@ -1,36 +1,5 @@
 import { API_URL } from './config.js';
 
-// 공통 API - 인증 필요
-async function fetchGetAPI(url, options = {}) {
-    const accessToken = localStorage.getItem('accessToken');
-
-    if(!accessToken) {
-        throw new Error('로그인 후 이용해주세요');
-    }
-
-    const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${accessToken}`,
-        },
-        credentials: 'include',
-        ...options,
-    });
-
-    const apiResponse = await response.json();
-
-    if(!response.ok) {
-        throw new Error(apiResponse.message);
-    }
-
-    if(!apiResponse.success) {
-        throw new Error(apiResponse.message);
-    }
-
-    return apiResponse.data;
-}
-
 // auth API
 export async function login(email, password) {
     try {
@@ -64,12 +33,37 @@ export async function login(email, password) {
 // 게시글 목록 조회
 export async function getPostList(cursor = null) {
     try {
+        const accessToken = localStorage.getItem('accessToken');
+
+        if(!accessToken) {
+            throw new Error('로그인 후 이용해주세요');
+        }
+
         let url = `${API_URL}/posts`;
         if(cursor != null) {
             url += `?cursor=${cursor}`;
         }
 
-        return await fetchGetAPI(url);
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`,
+            },
+            credentials: 'include',
+        });
+
+        const apiResponse = await response.json();
+
+        if(!response.ok) {
+            throw new Error(apiResponse.message);
+        }
+    
+        if(!apiResponse.success) {
+            throw new Error(apiResponse.message);
+        }
+    
+        return apiResponse.data;
     } catch (error) {
         console.error('게시글 목록 조회 에러: ',error);
         throw error;
@@ -79,11 +73,78 @@ export async function getPostList(cursor = null) {
 // 게시글 상세 조회
 export async function getPostDetail(postId) {
     try {
+        const accessToken = localStorage.getItem('accessToken');
+
+        if(!accessToken) {
+            throw new Error('로그인 후 이용해주세요');
+        }
+
         let url = `${API_URL}/posts/${postId}`;
 
-        return await fetchGetAPI(url);
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`,
+            },
+            credentials: 'include',
+        });
+
+        const apiResponse = await response.json();
+
+        if(!response.ok) {
+            throw new Error(apiResponse.message);
+        }
+
+        if(!apiResponse.success) {
+            throw new Error(apiResponse.message);
+        }
+
+        return apiResponse.data;
     } catch (error) {
         console.error('게시글 상세 조회 에러: ',error);
+        throw error;
+    }
+}
+
+// 게시글 삭제
+export async function deletePost(postId) {
+    try {
+        const accessToken = localStorage.getItem('accessToken');
+
+        if(!accessToken) {
+            throw new Error('로그인 후 이용해주세요');
+        }
+
+        const url = `${API_URL}/posts/${postId}`;
+
+        const response = await fetch(url, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`,
+            },
+            credentials: 'include',
+        });
+
+        // 204 No Content - body 없음
+        if(response.status === 204) {
+            return { success: true };
+        }
+
+        const apiResponse = await response.json();
+
+        if(!response.ok) {
+            throw new Error(apiResponse.message);
+        }
+
+        if(!apiResponse.success) {
+            throw new Error(apiResponse.message);
+        }
+
+        return apiResponse.data;
+    } catch (error) {
+        console.error('게시글 삭제 에러: ',error);
         throw error;
     }
 }
@@ -93,13 +154,38 @@ export async function getPostDetail(postId) {
 // 댓글 목록 조회
 export async function getCommentList(postId, cursor = null) {
     try {
+        const accessToken = localStorage.getItem('accessToken');
+
+        if(!accessToken) {
+            throw new Error('로그인 후 이용해주세요');
+        }
+
         let url = `${API_URL}/comments/${postId}`;
         
         if(cursor != null) {
             url += `?cursor=${cursor}`;
         }
 
-        return await fetchGetAPI(url);
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`,
+            },
+            credentials: 'include',
+        });
+
+        const apiResponse = await response.json();
+
+        if(!response.ok) {
+            throw new Error(apiResponse.message);
+        }
+
+        if(!apiResponse.success) {
+            throw new Error(apiResponse.message);
+        }
+
+        return apiResponse.data;
     } catch (error) {
         console.error('댓글 목록 조회 에러: ',error);
         throw error;
@@ -109,12 +195,35 @@ export async function getCommentList(postId, cursor = null) {
 // 댓글 작성
 export async function createComment(postId, content) {
     try {
-        let url = `${API_URL}/comments/${postId}`;
+        const accessToken = localStorage.getItem('accessToken');
 
-        return await fetchPostAPI(url, {
+        if(!accessToken) {
+            throw new Error('로그인 후 이용해주세요');
+        }
+
+        const url = `${API_URL}/comments/${postId}`;
+
+        const response = await fetch(url, {
             method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`,
+            },
+            credentials: 'include',
             body: JSON.stringify({ content }),
         });
+
+        const apiResponse = await response.json();
+
+        if(!response.ok) {
+            throw new Error(apiResponse.message);
+        }
+
+        if(!apiResponse.success) {
+            throw new Error(apiResponse.message);
+        }
+
+        return apiResponse.data; 
     } catch (error) {
         console.error('댓글 작성 에러: ',error);
         throw error;

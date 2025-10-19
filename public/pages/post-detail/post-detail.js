@@ -1,4 +1,4 @@
-import { getPostDetail, getCommentList, createComment } from '../../utils/api.js';
+import { getPostDetail, getCommentList, createComment, deletePost } from '../../utils/api.js';
 import { formatDateTime } from '../../utils/common.js';
 
 let postId = null;
@@ -68,6 +68,19 @@ function renderPostDetail(post) {
 
     if(post.isAuthor) {
         setupPostActions();
+    }
+}
+
+// 게시글 수정/삭제 이벤트
+function setupPostActions() {
+    const editBtn = postDetailContainer.querySelector('[data-action="edit"]');
+    const deleteBtn = postDetailContainer.querySelector('[data-action="delete"]');
+
+    if(editBtn) {
+        editBtn.addEventListener('click', handleEditPost);
+    }
+    if(deleteBtn) {
+        deleteBtn.addEventListener('click', handleDeletePost);
     }
 }
 
@@ -220,9 +233,35 @@ async function handleFetchCommentList() {
     }
 }
 
+// 게시글 수정 핸들러
+function handleEditPost() {
+    window.location.href = `../post-edit/post-edit.html?postId=${postId}`;
+}
+
+// 게시글 삭제 핸들러
+async function handleDeletePost() {
+    if(!confirm('정말 삭제하시겠습니까?')) {
+        return;
+    }
+
+    const deleteBtn = postDetailContainer.querySelector('[data-action="delete"]');
+
+    deleteBtn.disabled = true;
+    const originalText = deleteBtn.innerHTML;
+    deleteBtn.innerHTML = '삭제 중...';
+
+    try {
+        await deletePost(postId);
+
+        M.toast({ html: '게시글 삭제 성공' });
+
+        window.location.href = '../post-list/post-list.html';
+    } catch (error) {
+        M.toast({ html: '게시글 삭제 실패: ' + error.message });
+    }
+}
+
 /*
-게시글 수정 이벤트
-게시글 삭제 이벤트
 댓글 수정 이벤트
 댓글 삭제 이벤트
 */
@@ -238,15 +277,18 @@ async function init() {
     }
 
     try {
-        await Promise.all([
-            fetchPostDetail(),
-            fetchCommentList(),
-        ]);
+        await fetchPostDetail();
+        try {
+            await fetchCommentList();
+        } catch (error) {
+            console.warn('댓글 로딩 실패:', error);
+            commentListContainer.innerHTML = '...준비 중...';
+        }
 
         setupEventListeners();
     } catch (error) {
-        console.error('초기화 에러: ',error);
-        M.toast({ html: '초기화 실패: ' + error.message });
+        console.error('초기화 에러: ', error);
+        M.toast({ html: '페이지를 불러올 수 없습니다.' });
     }
 }
 
