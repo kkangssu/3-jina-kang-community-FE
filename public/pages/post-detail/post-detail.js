@@ -5,6 +5,7 @@ let postId = null;
 let currentCursor = null;
 let isLoading = false;
 let hasNext = true;
+let comments = [];
 
 // DOM 요소
 // 게시글
@@ -65,29 +66,13 @@ function renderPostDetail(post) {
             </div>
         </div>
     `;
-
-    if(post.isAuthor) {
-        setupPostActions();
-    }
-}
-
-// 게시글 수정/삭제 이벤트
-function setupPostActions() {
-    const editBtn = postDetailContainer.querySelector('[data-action="edit"]');
-    const deleteBtn = postDetailContainer.querySelector('[data-action="delete"]');
-
-    if(editBtn) {
-        editBtn.addEventListener('click', handleEditPost);
-    }
-    if(deleteBtn) {
-        deleteBtn.addEventListener('click', handleDeletePost);
-    }
 }
 
 // 댓글 카드
 function createCommentCard(comment) {
     const card = document.createElement('div');
     card.className = 'card comment-item';
+    card.dataset.commentId = comment.commentId;
 
     const commentActions = comment.isAuthor ? `
         <div class="comment-actions">
@@ -120,16 +105,24 @@ async function fetchCommentList(cursor = null) {
     if(isLoading) return;
     isLoading = true;
     try {
-        const response = await getCommentList(postId, currentCursor);
-
-        if(currentCursor === null && response.data.length === 0) {
+        const response = await getCommentList(postId, cursor);
+    
+        if(cursor === null && response.data.length === 0) {
             commentListContainer.innerHTML = '<div class="no-comment">댓글이 없습니다.</div>';
             return;
         }
+
+        // 첫 댓글 목록 조회 시 초기화
+        if(cursor === null) {
+            commentListContainer.innerHTML = '';
+            comments = [];
+        }
+
+        comments = comments.concat(response.data);
         
         renderCommentList(response.data);
 
-        currentCursor = response.nextCursor;
+        cursor = response.nextCursor;
         hasNext = response.hasNext;
 
         updateLoadCommentButton();
@@ -147,8 +140,6 @@ function renderCommentList(comments) {
         const commentCard = createCommentCard(comment);
         commentListContainer.appendChild(commentCard);
     });
-
-    setupCommentActions();
 }
 
 // 댓글 더보기 버튼
@@ -162,10 +153,41 @@ function updateLoadCommentButton() {
 
 // 이벤트 리스너 설정
 function setupEventListeners() {
-    submitCommentBtn.addEventListener('click', handleSubmitComment);
-    loadCommentBtn.addEventListener('click', handleFetchCommentList);
     // 댓글 입력 이벤트
+    submitCommentBtn.addEventListener('click', handleSubmitComment);
     commentContent.addEventListener('input', handleCommentInput);
+    // 댓글 더보기 이벤트
+    loadCommentBtn.addEventListener('click', handleFetchCommentList);
+    // 게시글 수정/삭제 이벤트
+    postDetailContainer.addEventListener('click', handlePostAction);
+    // 댓글 수정/삭제 이벤트
+    commentListContainer.addEventListener('click', handleCommentAction);
+}
+
+// 게시글 수정/삭제 이벤트
+function handlePostAction(e) {
+    const editBtn = e.target.closest('[data-action="edit"]');
+    const deleteBtn = e.target.closest('[data-action="delete"]');
+
+    if(editBtn) {
+        handleEditPost();
+    }
+    else if(deleteBtn) {
+        handleDeletePost();
+    }
+}
+
+// 댓글 수정/삭제 이벤트
+function handleCommentAction(e) {
+    const editBtn = e.target.closest('[data-action="edit"]');
+    const deleteBtn = e.target.closest('[data-action="delete"]');
+
+    if(editBtn) {
+        handleEditComment();
+    }
+    else if(deleteBtn) {
+        handleDeleteComment();
+    }
 }
 
 // 댓글 입력 이벤트 -> 댓글 입력 안하거나 500자 넘어가면 등록버튼 비활성화
@@ -200,15 +222,20 @@ async function handleSubmitComment(e) {
     submitCommentBtn.textContent = '등록 중...';
 
     try {
-        await createComment(postId, content);
+        const newComment = await createComment(postId, content);
+
+        comments.unshift(newComment);
+
+        const commentElement = createCommentCard(newComment);
+        commentListContainer.prepend(commentElement);
+
+        // updateCommentCount(comments.length);
 
         // 댓글 입력 필드 초기화
         commentContent.value = '';
         commentLength.textContent = 0;
 
-        // 댓글 목록 조회
-        currentCursor = null;
-        await fetchCommentList();
+        M.toast({ html: '댓글이 등록되었습니다.' });
     } catch (error) {
         M.toast({ html: '댓글 등록 실패: ' + error.message });
         console.error('댓글 등록 에러: ',error);
@@ -261,10 +288,26 @@ async function handleDeletePost() {
     }
 }
 
-/*
-댓글 수정 이벤트
-댓글 삭제 이벤트
-*/
+// 댓글 수정 핸들러
+function handleEditComment(e) {
+    const commentCard = e.target.closest('.comment-item');
+    const commentId = commentCard.dataset.commentId;
+    const commentContent = commentCard.querySelector('.comment-content').value;
+}
+
+// 댓글 삭제 핸들러
+function handleDeleteComment(e) {
+    const commentCard = e.target.closest('.comment-item');
+    const commentId = commentCard.dataset.commentId;
+    
+    if(!confirm('정말 삭제하시겠습니까?')) {
+        return;
+    }
+    
+    console.log('댓글 삭제:', commentId);
+    // TODO: 삭제 로직 구현
+    M.toast({ html: '댓글 삭제 기능은 준비 중입니다.' });
+}
 
 // 초기화
 async function init() {

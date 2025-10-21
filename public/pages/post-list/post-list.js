@@ -1,6 +1,6 @@
 import { getPostList } from '../../utils/api.js';
 import { formatDateTime } from '../../utils/common.js';
-
+import { ROUTES } from '../../utils/routes.js';
 let currentCursor = null;
 let isLoading = false;
 let hasNext = true;
@@ -11,11 +11,9 @@ const postList = document.getElementById('post-list');
 function setCreatePostButton() {
     const createPostButton = document.querySelector('.post-edit button');
     createPostButton.addEventListener('click', () => {
-        window.location.href = './post-write.html';
+        window.location.href = ROUTES.POST_WRITE;
     });
 }
-
-
 
 // 게시글 카드
 function createPostCard(post) {
