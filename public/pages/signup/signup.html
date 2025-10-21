@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>login</title>
+        
+        <!-- Materialize CSS CDN -->
+         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+        <!-- Material Icons -->
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <!-- 공통 CSS -->
+        <link rel="stylesheet" href="../../styles/common.css"></link>
+        <!-- 게시글 리스트 페이지 CSS -->
+        <link rel="stylesheet" href="./signup.css">
+     
+    </head>
+    <body>
+        <header></header>
+        <main class="container">
+            <div class="row">
+                <div class="col s12 m8 offset-m2 l6 offset-l3">
+                    <div class="card">
+                        <div class="card-content">
+                            <span class="card-title center-align">회원가입</span>
+                            <form id="signup-form">
+                                <!-- 프로필 사진 업로드 필드 -->
+                                <!-- 이메일 입력 필드 -->
+                                <div class="input-field">
+                                    <i class="material-icons prefix">email</i>
+                                    <input id="email" type="email" class="validate" required>
+                                    <label for="email">이메일</label>
+                                    <span class="helper-text" data-error="이메일을 입력하세요"></span>
+                                </div>
+                                <!-- 비밀번호 입력 필드 -->
+                                <div class="input-field">
+                                    <i class="material-icons prefix">lock</i>
+                                    <input id="password" type="password" class="validate" required>
+                                    <label for="password">비밀번호</label>
+                                </div>
+                                <!-- 닉네임 입력 필드 -->
+                                <div class="input-field">
+                                    <i class="material-icons prefix">person</i>
+                                    <input id="nickname" type="text" class="validate" required>
+                                    <label for="nickname">닉네임</label>
+                                    <span class="helper-text" data-error="닉네임을 입력하세요"></span>
+                                </div>
+                                <!-- 회원가입 버튼 -->
+                                 <button class="btn waves-effect waves-light purple lighten-4" type="submit">
+                                    회원가입
+                                 </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+         <!-- Materialize JS CDN -->
+         <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+         <!-- post-detail.js -->
+         <script type="module" src="signup.js"></script>
+    </body>
+</html>

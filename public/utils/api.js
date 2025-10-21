@@ -149,7 +149,6 @@ export async function deletePost(postId) {
     }
 }
 
-
 // comment API
 // 댓글 목록 조회
 export async function getCommentList(postId, cursor = null) {
@@ -160,11 +159,13 @@ export async function getCommentList(postId, cursor = null) {
             throw new Error('로그인 후 이용해주세요');
         }
 
-        let url = `${API_URL}/comments/${postId}`;
+        let url = `${API_URL}/${postId}/comments`;
         
         if(cursor != null) {
             url += `?cursor=${cursor}`;
         }
+
+        console.log('📍 요청 URL:', url); 
 
         const response = await fetch(url, {
             method: 'GET',
@@ -175,7 +176,11 @@ export async function getCommentList(postId, cursor = null) {
             credentials: 'include',
         });
 
+        console.log('📍 응답 상태:', response.status, response.ok);
+
         const apiResponse = await response.json();
+
+        console.log('📍 API 응답:', apiResponse);
 
         if(!response.ok) {
             throw new Error(apiResponse.message);
@@ -201,7 +206,7 @@ export async function createComment(postId, content) {
             throw new Error('로그인 후 이용해주세요');
         }
 
-        const url = `${API_URL}/comments/${postId}`;
+        const url = `${API_URL}/${postId}/comments`;
 
         const response = await fetch(url, {
             method: 'POST',
@@ -231,5 +236,33 @@ export async function createComment(postId, content) {
 }
 
 // user API
+// 회원가입
+export async function signup (email, password, nickname, profileImageId) {
+    try {
+        const response = await fetch( `${API_URL}/users`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({ email, password, nickname, profileImageId }),
+        });
+
+        const apiResponse = await response.json();
+
+        if(!response.ok) {
+            throw new Error(apiResponse.message);
+        }
+
+        if(!apiResponse.success) {
+            throw new Error(apiResponse.message);
+        }
+
+        return apiResponse.data;
+    } catch (error) {
+        console.error('회원가입 에러: ',error);
+        throw error;
+    }
+}
 
 // file API
