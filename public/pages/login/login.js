@@ -1,4 +1,5 @@
 import { login } from '../../utils/api.js';
+import { ROUTES } from '../../utils/routes.js';
 
 document.addEventListener('DOMContentLoaded', function() {
     M.updateTextFields();
@@ -43,7 +44,7 @@ async function handleLogin(e) {
         localStorage.setItem('user', JSON.stringify(data.userInfo));
         // 게시글 목록으로 이동
         setTimeout(() => {
-            window.location.href = '../post-list/post-list.html';
+            window.location.href = ROUTES.POSTS;
         }, 500);
     } catch (error) {
         console.error('로그인 에러: ',error);
