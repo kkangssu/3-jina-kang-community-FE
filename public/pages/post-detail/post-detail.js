@@ -1,4 +1,4 @@
-import { getPostDetail, getCommentList, createComment, deletePost } from '../../utils/api.js';
+import { getPostDetail, getCommentList, createComment, deletePost, deleteComment, updateComment } from '../../utils/api.js';
 import { formatDateTime } from '../../utils/common.js';
 
 let postId = null;
@@ -35,6 +35,14 @@ async function fetchPostDetail() {
     }
 }
 
+// 댓글 개수 업데이트
+function updateCommentCount(count) {
+    const  commentCount = document.querySelector('#comment-count-display');
+    if(commentCount) {
+        commentCount.textContent = count;
+    }
+}
+
 // 게시글 상세 렌더링
 function renderPostDetail(post) {
     const postActions = post.isAuthor ? `
@@ -62,6 +70,10 @@ function renderPostDetail(post) {
                 <div class="post-status grey-text" style="margin: 20px 0;">
                     <span><i class="material-icons left">thumb_up</i>${post.likeCount}</span>
                     <span><i class="material-icons left">visibility</i>${post.viewCount}</span>
+                    <span>
+                        <i class="material-icons left">comment</i>
+                        <span id="comment-count-display">...</span>
+                    </span>
                 </div>
             </div>
         </div>
@@ -77,24 +89,22 @@ function createCommentCard(comment) {
     const commentActions = comment.isAuthor ? `
         <div class="comment-actions">
             <button class="btn waves-effect waves-light purple lighten-4" data-action="edit">
-            <i class="material-icons left">edit</i>수정
+                <i class="material-icons left">edit</i>수정
             </button>
             <button class="btn waves-effect waves-light purple lighten-4" data-action="delete">
-            <i class="material-icons left">delete</i>삭제
+                <i class="material-icons left">delete</i>삭제
             </button>
         </div>
     ` : '';
 
     card.innerHTML = `
-        <div class="card comment-item">
-            <div class="comment-content">
-                <div class="comment-author">${comment.authorName}</div>
-                <div class="comment-created-at">${formatDateTime(comment.createdAt)}</div>
-                <div class="comment-content" style="margin-top: 10px;">
-                    ${comment.content}
-                </div>
-                ${commentActions}
+        <div class="comment-content">
+            <div class="comment-author">${comment.authorName}</div>
+            <div class="comment-created-at">${formatDateTime(comment.createdAt)}</div>
+            <div class="comment-content" style="margin-top: 10px;">
+                ${comment.content}
             </div>
+            ${commentActions}
         </div>
     `;
     return card;
@@ -104,11 +114,13 @@ function createCommentCard(comment) {
 async function fetchCommentList(cursor = null) {
     if(isLoading) return;
     isLoading = true;
+
     try {
-        const response = await getCommentList(postId, cursor);
+        const commentList = await getCommentList(postId, cursor);
     
-        if(cursor === null && response.data.length === 0) {
+        if(cursor === null && commentList.data.length === 0) {
             commentListContainer.innerHTML = '<div class="no-comment">댓글이 없습니다.</div>';
+            updateCommentCount(0);
             return;
         }
 
@@ -118,12 +130,14 @@ async function fetchCommentList(cursor = null) {
             comments = [];
         }
 
-        comments = comments.concat(response.data);
+        comments = comments.concat(commentList.data);
         
-        renderCommentList(response.data);
+        renderCommentList(commentList.data);
 
-        cursor = response.nextCursor;
-        hasNext = response.hasNext;
+        updateCommentCount(commentList.count);
+
+        currentCursor = commentList.nextCursor;
+        hasNext = commentList.hasNext;
 
         updateLoadCommentButton();
     } catch (error) {
@@ -136,6 +150,15 @@ async function fetchCommentList(cursor = null) {
 
 // 댓글 목록 렌더링
 function renderCommentList(comments) {
+    comments.forEach(comment => {
+        const commentCard = createCommentCard(comment);
+        commentListContainer.appendChild(commentCard);
+    });
+}
+
+// 댓글 목록 삭제 후 렌더링
+function renderCommentListAfterDelete(comments) {
+    commentListContainer.innerHTML = '';
     comments.forEach(comment => {
         const commentCard = createCommentCard(comment);
         commentListContainer.appendChild(commentCard);
@@ -183,10 +206,10 @@ function handleCommentAction(e) {
     const deleteBtn = e.target.closest('[data-action="delete"]');
 
     if(editBtn) {
-        handleEditComment();
+        handleEditComment(e);
     }
     else if(deleteBtn) {
-        handleDeleteComment();
+        handleDeleteComment(e);
     }
 }
 
@@ -229,7 +252,8 @@ async function handleSubmitComment(e) {
         const commentElement = createCommentCard(newComment);
         commentListContainer.prepend(commentElement);
 
-        // updateCommentCount(comments.length);
+        const currentCounter = parseInt(document.querySelector('#comment-count-display').textContent) || 0;
+        updateCommentCount(currentCounter + 1);
 
         // 댓글 입력 필드 초기화
         commentContent.value = '';
@@ -296,7 +320,7 @@ function handleEditComment(e) {
 }
 
 // 댓글 삭제 핸들러
-function handleDeleteComment(e) {
+async function handleDeleteComment(e) {
     const commentCard = e.target.closest('.comment-item');
     const commentId = commentCard.dataset.commentId;
     
@@ -304,9 +328,24 @@ function handleDeleteComment(e) {
         return;
     }
     
-    console.log('댓글 삭제:', commentId);
-    // TODO: 삭제 로직 구현
-    M.toast({ html: '댓글 삭제 기능은 준비 중입니다.' });
+    try {
+        await deleteComment(postId, commentId);
+
+        const deletedCommentId = Number(commentId);
+
+        comments = comments.filter(comment => comment.commentId !== deletedCommentId);
+        const afterLength = comments.length;
+        
+        const currentCounter = parseInt(document.querySelector('#comment-count-display').textContent) || 0;
+        updateCommentCount(currentCounter - 1);
+        
+        renderCommentListAfterDelete(comments);
+
+        M.toast({ html: '댓글 삭제 성공' });
+    } catch (error) {
+        M.toast({ html: '댓글 삭제 실패: ' + error.message });
+        console.error('댓글 삭제 에러: ',error);
+    }
 }
 
 // 초기화
