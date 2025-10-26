@@ -50,7 +50,8 @@ async function fetchPostList() {
     isLoading = true;
 
     try {
-        const response = await getPostList(currentCursor);
+        const apiData = await getPostList(currentCursor);
+        const response = apiData.data;
 
         if(currentCursor === null && response.data.length === 0) {
             postList.innerHTML = '<div class="no-post">게시글이 없습니다.</div>';

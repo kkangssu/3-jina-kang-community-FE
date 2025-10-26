@@ -21,7 +21,7 @@ export async function request (endpoint, options = {}, errorContext) {
             throw new Error(apiResponse.message);
         }
 
-        return apiResponse.data;
+        return apiResponse;
     } catch (error) {
         console.error(errorContext, error);
         throw error;
@@ -55,7 +55,7 @@ export async function requestWithAuth (endpoint, options = {}, errorContext) {
             throw new Error(apiResponse.message);
         }
 
-        return apiResponse.data;
+        return apiResponse;
     } catch (error) {
         console.error(errorContext, error);
         throw error;
@@ -100,6 +100,11 @@ export async function logout() {
     return http.postWithAuth('auth/logout', {}, '로그아웃 에러');
 }
 
+// access token 재발급
+export async function refreshAccessToken() {
+    return http.postWithAuth('auth/reissue/access', {}, 'access token 재발급 에러');
+}
+
 // post API
 // 게시글 목록 조회
 export async function getPostList(cursor = null) {
@@ -114,15 +119,15 @@ export async function getPostDetail(postId) {
 }
 
 // 게시글 작성
-export async function createPost(title, content, postImageId) {
+export async function createPost(postData) {
     const endpoint = `posts`;
-    return http.postWithAuth(endpoint, { title, content, postImageId }, '게시글 작성 에러');
+    return http.postWithAuth(endpoint, postData, '게시글 작성 에러');
 }
 
 // 게시글 수정
-export async function updatePost(postId, title, content, imageId) {
+export async function updatePost(postId, postData) {
     const endpoint = `posts/${postId}`;
-    return http.putWithAuth(endpoint, { title, content, postImageId }, '게시글 수정 에러');
+    return http.patchWithAuth(endpoint, postData, '게시글 수정 에러');
 }
 
 // 게시글 삭제
@@ -147,7 +152,7 @@ export async function createComment(postId, content) {
 // 댓글 수정
 export async function updateComment(postId, commentId, content) {
     const endpoint = `${postId}/comments/${commentId}`;
-    return http.putWithAuth(endpoint, { content }, '댓글 수정 에러');
+    return http.patchWithAuth(endpoint, { content }, '댓글 수정 에러');
 }
 
 // 댓글 삭제
@@ -163,4 +168,64 @@ export async function signup (email, password, nickname, profileImageId) {
     return http.post(endpoint, { email, password, nickname, profileImageId }, '회원가입 에러');
 }
 
+// 회원 정보 조회
+export async function getProfile() {
+    const endpoint = `users/me`;
+    return http.getWithAuth(endpoint, '회원 정보 조회 에러');
+}
+
+// 회원 정보 수정
+export async function editProfile(userData) {
+    const endpoint = `users/me`;
+    return http.patchWithAuth(endpoint, userData, '회원 정보 수정 에러');
+}
+
+// 닉네임 중복확인
+export async function checkNickname(nickname) {
+    const endpoint = `users/check-nickname/${nickname}`;
+    return http.get(endpoint, '닉네임 중복확인 에러');
+}
+
+// 비밀번호 변경
+export async function editPassword(password) {
+    const endpoint = `users/me/password`;
+    return http.patchWithAuth(endpoint, { password }, '비밀번호 변경 에러');
+}
+
 // file API
+// 파일 업로드
+export async function uploadFile(formData) {
+    try {
+        const accessToken = localStorage.getItem('accessToken');
+
+        if (!accessToken) {
+            throw new Error('로그인이 필요합니다.');
+        }
+
+        const response = await fetch(`${API_URL}/file`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+            },
+            credentials: 'include',
+            body: formData  // FormData 그대로 전송
+        });
+
+        const apiResponse = await response.json();
+
+        // 응답 에러 처리
+        if (!response.ok) {
+            throw new Error(apiResponse.error?.message);
+        }
+
+        if (!apiResponse.success) {
+            throw new Error(apiResponse.error?.message);
+        }
+
+        return apiResponse;
+        
+    } catch (error) {
+        console.error('파일 업로드 에러:', error);
+        throw error;
+    }
+}

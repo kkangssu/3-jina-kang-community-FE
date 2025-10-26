@@ -27,7 +27,8 @@ function getPostIdFromURL() {
 // 게시글 상세 조회
 async function fetchPostDetail() {
     try {
-        const post = await getPostDetail(postId);
+        const apiData = await getPostDetail(postId);
+        const post = apiData.data;
         renderPostDetail(post);
     } catch (error) {
         M.toast({ html: '게시글 상세 조회 실패: ' + error.message });
@@ -56,6 +57,20 @@ function renderPostDetail(post) {
         </div>
     ` : '';
 
+    const imageGallery = post.postFiles && post.postFiles.length > 0 
+    ? `
+        <div class="post-images">
+            ${post.postFiles
+                .sort((a, b) => a.imageIndex - b.imageIndex)
+                .map(file => `
+                    <img src="${file.url}" 
+                         alt="${file.fileName}" 
+                         class="responsive-img">
+                `).join('')}
+        </div>
+    `
+    : '';
+
     postDetailContainer.innerHTML = `
         <div class="card">
             <div class="card-content">
@@ -67,6 +82,7 @@ function renderPostDetail(post) {
                 </div>
                 <div class="divider"></div>
                 <div class="post-content">${post.content}</div>
+                ${imageGallery}
                 <div class="post-status grey-text" style="margin: 20px 0;">
                     <span><i class="material-icons left">thumb_up</i>${post.likeCount}</span>
                     <span><i class="material-icons left">visibility</i>${post.viewCount}</span>
@@ -98,11 +114,11 @@ function createCommentCard(comment) {
     ` : '';
 
     card.innerHTML = `
-        <div class="comment-content">
+        <div class="comment-body"> 
             <div class="comment-author">${comment.authorName}</div>
             <div class="comment-created-at">${formatDateTime(comment.createdAt)}</div>
-            <div class="comment-content" style="margin-top: 10px;">
-                ${comment.content}
+            <div class="comment-text" style="margin-top: 10px;">
+                ${comment.content.replace(/\n/g, '<br>')}
             </div>
             ${commentActions}
         </div>
@@ -116,7 +132,8 @@ async function fetchCommentList(cursor = null) {
     isLoading = true;
 
     try {
-        const commentList = await getCommentList(postId, cursor);
+        const apiData = await getCommentList(postId, cursor);
+        const commentList = apiData.data;
     
         if(cursor === null && commentList.data.length === 0) {
             commentListContainer.innerHTML = '<div class="no-comment">댓글이 없습니다.</div>';
@@ -204,12 +221,20 @@ function handlePostAction(e) {
 function handleCommentAction(e) {
     const editBtn = e.target.closest('[data-action="edit"]');
     const deleteBtn = e.target.closest('[data-action="delete"]');
+    const saveBtn = e.target.closest('[data-action="save"]');
+    const cancelBtn = e.target.closest('[data-action="cancel"]');
 
     if(editBtn) {
         handleEditComment(e);
     }
     else if(deleteBtn) {
         handleDeleteComment(e);
+    }
+    else if (saveBtn) {
+        handleSaveComment(e);
+    }
+    else if (cancelBtn) {
+        handleCancelEdit(e);
     }
 }
 
@@ -245,7 +270,8 @@ async function handleSubmitComment(e) {
     submitCommentBtn.textContent = '등록 중...';
 
     try {
-        const newComment = await createComment(postId, content);
+        const apiData = await createComment(postId, content);
+        const newComment = apiData.data;
 
         comments.unshift(newComment);
 
@@ -316,7 +342,35 @@ async function handleDeletePost() {
 function handleEditComment(e) {
     const commentCard = e.target.closest('.comment-item');
     const commentId = commentCard.dataset.commentId;
-    const commentContent = commentCard.querySelector('.comment-content').value;
+
+    const commentData = comments.find(comment => comment.commentId == commentId);
+    if(!commentData) {
+        M.toast({ html: '댓글을 찾을 수 없습니다.' });
+        return;
+    }
+
+    const currentContent = commentData.content;
+    const commentBody = commentCard.querySelector('.comment-body');
+
+    commentBody.innerHTML = `
+        <div class="input-field" style="margin-top: 10px;">
+            <textarea id="edit-comment-${commentId}" class="materialize-textarea">${currentContent}</textarea>
+            <label for="edit-comment-${commentId}">댓글 수정</label>
+        </div>
+        <div class="comment-actions">
+            <button class="btn waves-effect waves-light purple lighten-2" data-action="save">
+                <i class="material-icons left">save</i>저장
+            </button>
+            <button class="btn-flat waves-effect" data-action="cancel">
+                취소
+            </button>
+        </div>
+    `;
+
+    const textarea = commentBody.querySelector('textarea');
+    M.textareaAutoResize(textarea);
+    M.updateTextFields();
+    textarea.focus();
 }
 
 // 댓글 삭제 핸들러
@@ -346,6 +400,66 @@ async function handleDeleteComment(e) {
         M.toast({ html: '댓글 삭제 실패: ' + error.message });
         console.error('댓글 삭제 에러: ',error);
     }
+}
+
+// 댓글 수정 저장 핸들러
+async function handleSaveComment(e) {
+    const commentCard = e.target.closest('.comment-item');
+    const commentId = commentCard.dataset.commentId;
+    const textarea = commentCard.querySelector(`#edit-comment-${commentId}`);
+    const newContent = textarea.value.trim();
+
+    // 유효성 검사
+    if (!newContent) {
+        M.toast({ html: '댓글을 입력해주세요.' });
+        return;
+    }
+    if (newContent.length > 500) {
+        M.toast({ html: '500자 이하로 입력해주세요.' });
+        return;
+    }
+
+    // 버튼 비활성화
+    const saveBtn = e.target.closest('[data-action="save"]');
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '저장 중...';
+
+    try {
+        // 1. API 호출
+        await updateComment(postId, commentId, newContent);
+
+        // 2. 로컬 comments 배열 데이터 업데이트
+        const commentData = comments.find(c => c.commentId == commentId);
+        if (commentData) {
+            commentData.content = newContent;
+        }
+
+        // 3. 카드 재생성 및 교체
+        const updatedCard = createCommentCard(commentData);
+        commentCard.parentNode.replaceChild(updatedCard, commentCard);
+
+        M.toast({ html: '댓글이 수정되었습니다.' });
+
+    } catch (error) {
+        M.toast({ html: '댓글 수정 실패: ' + error.message });
+        console.error('댓글 수정 에러: ', error);
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '<i class="material-icons left">save</i>저장';
+    }
+}
+
+// 댓글 수정 취소 핸들러
+function handleCancelEdit(e) {
+    const commentCard = e.target.closest('.comment-item');
+    const commentId = commentCard.dataset.commentId;
+
+    // 1. 원본 데이터 찾기
+    const commentData = comments.find(c => c.commentId == commentId);
+    if (!commentData) return;
+
+    // 2. 원본 데이터로 카드 재생성 및 교체
+    const originalCard = createCommentCard(commentData);
+    commentCard.parentNode.replaceChild(originalCard, commentCard);
 }
 
 // 초기화

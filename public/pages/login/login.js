@@ -37,7 +37,8 @@ async function handleLogin(e) {
 
     // API 호출
     try {
-        const data = await login(email, password);
+        const apiData = await login(email, password);
+        const data = apiData.data;
         // accessToken 저장
         localStorage.setItem('accessToken', data.accessToken);
         // 회원 정보 저장
