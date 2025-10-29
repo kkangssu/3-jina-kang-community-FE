@@ -1,6 +1,6 @@
 import { updatePost, getPostDetail, uploadFile } from '../../utils/api.js';
 import { ROUTES } from '../../utils/routes.js';
-import { isAuthenticated } from '../../auth.js';
+import { isAuthenticated } from '../../utils/auth.js';
 
 if (!isAuthenticated()) {
     window.location.href = '/pages/login/login.html';
