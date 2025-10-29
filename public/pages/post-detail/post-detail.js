@@ -1,10 +1,5 @@
 import { getPostDetail, getCommentList, createComment, deletePost, deleteComment, updateComment } from '../../utils/api.js';
 import { formatDateTime } from '../../utils/common.js';
-import { isAuthenticated } from '../../auth.js';
-
-if (!isAuthenticated()) {
-    window.location.href = '/pages/login/login.html';
-}
 
 let postId = null;
 let currentCursor = null;

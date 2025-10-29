@@ -1,10 +1,5 @@
 import { createPost, uploadFile } from '../../utils/api.js';
 import { ROUTES } from '../../utils/routes.js';
-import { isAuthenticated } from '../../auth.js';
-
-if (!isAuthenticated()) {
-    window.location.href = '/pages/login/login.html';
-}
 
 let uploadedFiles = [];
 

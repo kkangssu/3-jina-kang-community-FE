@@ -8,6 +8,7 @@ export async function request (endpoint, options = {}, errorContext) {
             headers: {
                 'Content-Type': 'application/json',
             },
+            credentials: 'include',
             ...options,
         });
 
@@ -30,16 +31,9 @@ export async function request (endpoint, options = {}, errorContext) {
 // 인증 필요
 export async function requestWithAuth (endpoint, options = {}, errorContext) {
     try {
-        const accessToken = localStorage.getItem('accessToken');
-
-        if(!accessToken) {
-            throw new Error('UNAUTHORIZED');
-        }
-
         const response = await fetch( `${API_URL}/${endpoint}`, {
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${accessToken}`,
             },
             credentials: 'include',
             ...options,
@@ -48,6 +42,12 @@ export async function requestWithAuth (endpoint, options = {}, errorContext) {
         const apiResponse = await response.json();
 
         if(!response.ok) {
+            if(response.status === 401) {
+                localStorage.removeItem('user');
+                window.location.href = '/pages/login/login.html';
+                return;
+            }
+
             throw new Error(apiResponse.message);
         }
 
@@ -103,15 +103,9 @@ export async function logout() {
         console.error('로그아웃 에러:', error);
         throw error;
     } finally {
-        localStorage.removeItem('accessToken');
         localStorage.removeItem('user');
         window.location.href = '/pages/login/login.html';
     }
-}
-
-// access token 재발급
-export async function refreshAccessToken() {
-    return http.postWithAuth('auth/reissue/access', {}, 'access token 재발급 에러');
 }
 
 // post API

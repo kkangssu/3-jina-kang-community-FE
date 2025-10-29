@@ -39,10 +39,8 @@ async function handleLogin(e) {
     try {
         const apiData = await login(email, password);
         const data = apiData.data;
-        // accessToken 저장
-        localStorage.setItem('accessToken', data.accessToken);
         // 회원 정보 저장
-        localStorage.setItem('user', JSON.stringify(data.userInfo));
+        localStorage.setItem('user', JSON.stringify(data));
         // 게시글 목록으로 이동
         setTimeout(() => {
             window.location.href = ROUTES.POSTS;
