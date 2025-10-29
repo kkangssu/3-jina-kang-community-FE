@@ -1,9 +1,14 @@
 import { getProfile, editProfile, uploadFile, checkNickname } from '../../utils/api.js';
 import { ROUTES } from '../../utils/routes.js';
+import { isAuthenticated } from '../../auth.js';
+
+if (!isAuthenticated()) {
+    window.location.href = '/pages/login/login.html';
+}
 
 // 상태 관리
 let currentNickname = '';
-let currentProfileImageUrl = '';
+let currentProfileImage = null;
 let nicknameVerified = false;
 let selectedImage = null;
 
@@ -23,13 +28,13 @@ async function fetchProfile() {
         const response = await getProfile();
         const profile = response.data;
         currentNickname = profile.nickname;
-        currentProfileImageUrl = profile.profileImageUrl;
+        currentProfileImage = profile.profileImage;
 
         emailInput.value = profile.email;
         nicknameInput.value = profile.nickname;
 
-        if (profile.profileImageUrl) {
-            profileImagePreview.src = profile.profileImageUrl;
+        if (profile.profileImage && profile.profileImage.url) {
+            profileImagePreview.src = profile.profileImage.url;
         }
     } catch (error) {
         console.error('프로필 로드 실패:', error);
@@ -81,7 +86,7 @@ async function handleCheckNickname() {
     try {
         const response = await checkNickname(nickname);
 
-        if (response.available) {
+        if (response.data) {
             M.toast({ html: '사용 가능한 닉네임입니다.' });
             nicknameVerified = true;
             updateSaveButtonState();
@@ -124,7 +129,7 @@ async function handleSaveProfile(e) {
     }
 
     const nickname = nicknameInput.value.trim();
-    let profileImageUrl = currentProfileImageUrl;
+    let profileImageData = null;
 
     saveBtn.disabled = true;
     const originalText = saveBtn.textContent;
@@ -136,20 +141,26 @@ async function handleSaveProfile(e) {
             const formData = new FormData();
             formData.append('file', selectedImage);
             const uploadResponse = await uploadFile(formData);
-            profileImageUrl = uploadResponse.data.fileUrl;
+            profileImageData = uploadResponse.data;
         }
 
         // 항상 profileImageUrl 포함해서 전송
         const updateData = {
             nickname: nickname,
-            profileImageUrl: profileImageUrl
+            profileImage: profileImageData
         };
 
         await editProfile(updateData);
         M.toast({ html: '프로필이 성공적으로 수정되었습니다.' });
 
         currentNickname = nickname;
-        currentProfileImageUrl = profileImageUrl;
+        if(profileImageData) {
+            currentProfileImage = {
+                fileName: profileImageData.fileName,
+                url: profileImageData.fileUrl,
+                contentType: profileImageData.contentType
+            }
+        }
         selectedImage = null;
         nicknameVerified = false;
         profileImageUpload.value = '';

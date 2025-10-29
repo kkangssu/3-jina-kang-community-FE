@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>login</title>
+        <title>회원가입</title>
         
         <!-- Materialize CSS CDN -->
          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
@@ -25,28 +25,83 @@
                             <span class="card-title center-align">회원가입</span>
                             <form id="signup-form">
                                 <!-- 프로필 사진 업로드 필드 -->
+                                <div class="center-align" style="margin-bottom: 20px;">
+                                    <div style="position: relative; display: inline-block;">
+                                        <img id="profile-image-preview" 
+                                             src="https://via.placeholder.com/150/9c27b0/ffffff?text=Profile" 
+                                             alt="프로필 이미지" 
+                                             class="circle responsive-img" 
+                                             style="width: 150px; height: 150px; object-fit: cover;">
+                                    </div>
+                                    <div style="margin-top: 10px;">
+                                        <input type="file" 
+                                               id="profile-image-upload" 
+                                               accept="image/*" 
+                                               style="display: none;">
+                                        <button type="button" 
+                                                class="btn-small waves-effect waves-light purple lighten-4" 
+                                                onclick="document.getElementById('profile-image-upload').click()">
+                                            이미지 선택
+                                        </button>
+                                    </div>
+                                </div>
+
                                 <!-- 이메일 입력 필드 -->
                                 <div class="input-field">
-                                    <i class="material-icons prefix">email</i>
-                                    <input id="email" type="email" class="validate" required>
-                                    <label for="email">이메일</label>
-                                    <span class="helper-text" data-error="이메일을 입력하세요"></span>
+                                    <div class="row" style="margin-bottom: 0;">
+                                        <div class="col s12">
+                                            <i class="material-icons prefix">email</i>
+                                            <input id="email" type="email" class="validate" required>
+                                            <label for="email">이메일</label>
+                                            <span class="helper-text" data-error="이메일을 입력하세요"></span>
+                                        </div>
+                                    </div>
+                                    <div class="row" style="margin-bottom: 0;">
+                                        <div class="col s12">
+                                            <button id="check-email-btn" 
+                                                    class="btn-small waves-effect waves-light purple lighten-4" 
+                                                    type="button"
+                                                    style="width: 100%;">
+                                                이메일 중복 확인
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
+
                                 <!-- 비밀번호 입력 필드 -->
                                 <div class="input-field">
                                     <i class="material-icons prefix">lock</i>
                                     <input id="password" type="password" class="validate" required>
                                     <label for="password">비밀번호</label>
                                 </div>
+
                                 <!-- 닉네임 입력 필드 -->
                                 <div class="input-field">
-                                    <i class="material-icons prefix">person</i>
-                                    <input id="nickname" type="text" class="validate" required>
-                                    <label for="nickname">닉네임</label>
-                                    <span class="helper-text" data-error="닉네임을 입력하세요"></span>
+                                    <div class="row" style="margin-bottom: 0;">
+                                        <div class="col s12">
+                                            <i class="material-icons prefix">person</i>
+                                            <input id="nickname" type="text" class="validate" required>
+                                            <label for="nickname">닉네임</label>
+                                            <span class="helper-text" data-error="닉네임을 입력하세요"></span>
+                                        </div>
+                                    </div>
+                                    <div class="row" style="margin-bottom: 0;">
+                                        <div class="col s12">
+                                            <button id="check-nickname-btn" 
+                                                    class="btn-small waves-effect waves-light purple lighten-4" 
+                                                    type="button"
+                                                    style="width: 100%;">
+                                                닉네임 중복 확인
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
+
                                 <!-- 회원가입 버튼 -->
-                                 <button class="btn waves-effect waves-light purple lighten-4" type="submit">
+                                 <button id="signup-btn" 
+                                         class="btn waves-effect waves-light purple lighten-4" 
+                                         type="submit"
+                                         disabled>
                                     회원가입
                                  </button>
                             </form>

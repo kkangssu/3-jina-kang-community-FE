@@ -97,7 +97,16 @@ export async function login(email, password) {
 
 // 로그아웃
 export async function logout() {
-    return http.postWithAuth('auth/logout', {}, '로그아웃 에러');
+    try {
+        await http.postWithAuth('auth/logout', {}, '로그아웃 에러');
+    } catch (error) {
+        console.error('로그아웃 에러:', error);
+        throw error;
+    } finally {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('user');
+        window.location.href = '/pages/login/login.html';
+    }
 }
 
 // access token 재발급
@@ -163,9 +172,21 @@ export async function deleteComment(postId, commentId) {
 
 // user API
 // 회원가입
-export async function signup (email, password, nickname, profileImageId) {
-    const endpoint = `users`;
-    return http.post(endpoint, { email, password, nickname, profileImageId }, '회원가입 에러');
+export async function signup (signupData) {
+    const endpoint = `signup`;
+    return http.post(endpoint, signupData, '회원가입 에러');
+}
+
+// 닉네임 중복확인 - 회원가입
+export async function checkNicknameBeforeSignup(nickname) {
+    const endpoint = `signup/check-nickname?nickname=${nickname}`;
+    return http.get(endpoint, '닉네임 중복확인 에러');
+}
+
+// 이메일 중복확인 - 회원가입
+export async function checkEmailBeforeSignup(email) {
+    const endpoint = `signup/check-email?email=${email}`;
+    return http.get(endpoint, '이메일 중복확인 에러');
 }
 
 // 회원 정보 조회
@@ -180,34 +201,32 @@ export async function editProfile(userData) {
     return http.patchWithAuth(endpoint, userData, '회원 정보 수정 에러');
 }
 
-// 닉네임 중복확인
+// 닉네임 중복확인 - 회원가입 후
 export async function checkNickname(nickname) {
-    const endpoint = `users/check-nickname/${nickname}`;
-    return http.get(endpoint, '닉네임 중복확인 에러');
+    const endpoint = `users/check-nickname?nickname=${nickname}`;
+    return http.getWithAuth(endpoint, '닉네임 중복확인 에러');
+}
+
+// 비밀번호 확인
+export async function checkPassword(passwordData) {
+    const endpoint = `users/me/password`;
+    return http.postWithAuth(endpoint, passwordData, '비밀번호 확인 에러');
 }
 
 // 비밀번호 변경
-export async function editPassword(password) {
+export async function editPassword(passwordData) {
     const endpoint = `users/me/password`;
-    return http.patchWithAuth(endpoint, { password }, '비밀번호 변경 에러');
+    return http.patchWithAuth(endpoint, passwordData, '비밀번호 변경 에러');
 }
 
 // file API
 // 파일 업로드
 export async function uploadFile(formData) {
     try {
-        const accessToken = localStorage.getItem('accessToken');
-
-        if (!accessToken) {
-            throw new Error('로그인이 필요합니다.');
-        }
-
         const response = await fetch(`${API_URL}/file`, {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${accessToken}`,
             },
-            credentials: 'include',
             body: formData  // FormData 그대로 전송
         });
 
