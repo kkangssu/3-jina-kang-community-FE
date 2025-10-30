@@ -1,17 +1,14 @@
 header {
-    background-color: rgba(255, 255, 255, 0.55);
     min-height: 64px;
-    backdrop-filter: blur(12px); 
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
 }
 
 nav {
-    background-color: rgba(255, 255, 255, 0.55);
+    background-color: rgba(255, 255, 255, 0.3);
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
+    box-shadow: none !important;
 }
 
 .nav ul a {
