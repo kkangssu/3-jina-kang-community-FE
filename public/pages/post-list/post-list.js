@@ -24,7 +24,7 @@ function setCreatePostButton() {
 // 게시글 카드
 function createPostCard(post) {
     const card = document.createElement('div');
-    card.className = "post-card grey lighten-5";
+    card.className = "post-card";
     card.dataset.postId = post.postId;
 
     card.innerHTML = `

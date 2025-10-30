@@ -1,0 +1,32 @@
+header {
+    background-color: rgba(255, 255, 255, 0.55);
+    min-height: 64px;
+    backdrop-filter: blur(12px); 
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+nav {
+    background-color: rgba(255, 255, 255, 0.55);
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.nav ul a {
+    color: #444c66c7 !important;
+}
+
+#menu-burger {
+    width: 32px; 
+    height: 32px;
+    object-fit: cover;
+    padding: 4px;
+    vertical-align: middle;
+}
+
+nav .header-logo {
+    color: #444c66c7;
+    text-decoration: none;
+}

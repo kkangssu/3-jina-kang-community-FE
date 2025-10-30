@@ -3,26 +3,20 @@ body {
     display: flex;
     min-height: 100vh;
     flex-direction: column;
-    background-color: #f5f5f5;
-
-    nav .header-logo {
-        color: #000000;
-        text-decoration: none;
-    }
+    background: #c8d4f1; /* fallback */
+    background: linear-gradient(180deg, #c8d4f1 0%, #e7e9f8 100%);
 }
 
 main {
     flex: 1 0 auto;
     padding: 16px 0;
-  
-
-    /* 컨테이너 공통 여백 */
-    main.container {
-        margin-top: 16px;
-    }
-    
-    /* 헤더 스타일 */
-    header {
-        min-height: 64px;
-    }
 }
+
+/* 컨테이너 공통 여백 */
+main.container {
+    margin-top: 16px;
+}
+
+
+
+

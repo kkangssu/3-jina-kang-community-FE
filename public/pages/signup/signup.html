@@ -5,26 +5,21 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>회원가입</title>
         
-        <!-- Materialize CSS CDN -->
-         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-        <!-- Material Icons -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-        <!-- 공통 CSS -->
         <link rel="stylesheet" href="../../styles/common.css"></link>
-        <!-- 게시글 리스트 페이지 CSS -->
         <link rel="stylesheet" href="./signup.css">
      
     </head>
     <body>
         <header></header>
-        <main class="container">
+        <main class="container signup-container">
             <div class="row">
                 <div class="col s12 m8 offset-m2 l6 offset-l3">
                     <div class="card">
                         <div class="card-content">
                             <span class="card-title center-align">회원가입</span>
                             <form id="signup-form">
-                                <!-- 프로필 사진 업로드 필드 -->
                                 <div class="center-align" style="margin-bottom: 20px;">
                                     <div style="position: relative; display: inline-block;">
                                         <img id="profile-image-preview" 
@@ -39,67 +34,59 @@
                                                accept="image/*" 
                                                style="display: none;">
                                         <button type="button" 
-                                                class="btn-small waves-effect waves-light purple lighten-4" 
+                                                class="btn waves-effect waves-light signup-btn-style" 
                                                 onclick="document.getElementById('profile-image-upload').click()">
                                             이미지 선택
                                         </button>
                                     </div>
                                 </div>
 
-                                <!-- 이메일 입력 필드 -->
-                                <div class="input-field">
+                                <div class="input-field email-field-group">
                                     <div class="row" style="margin-bottom: 0;">
-                                        <div class="col s12">
+                                        <div class="col s9" style="padding-right: 5px;"> 
                                             <i class="material-icons prefix">email</i>
                                             <input id="email" type="email" class="validate" required>
                                             <label for="email">이메일</label>
                                             <span class="helper-text" data-error="이메일을 입력하세요"></span>
                                         </div>
-                                    </div>
-                                    <div class="row" style="margin-bottom: 0;">
-                                        <div class="col s12">
+                                        <div class="col s3 signup-btn-col""> 
                                             <button id="check-email-btn" 
-                                                    class="btn-small waves-effect waves-light purple lighten-4" 
+                                                    class="btn waves-effect waves-light signup-btn-style" 
                                                     type="button"
-                                                    style="width: 100%;">
-                                                이메일 중복 확인
+                                                    style="width: 100%;"> 
+                                                확인
                                             </button>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- 비밀번호 입력 필드 -->
                                 <div class="input-field">
                                     <i class="material-icons prefix">lock</i>
                                     <input id="password" type="password" class="validate" required>
                                     <label for="password">비밀번호</label>
                                 </div>
 
-                                <!-- 닉네임 입력 필드 -->
-                                <div class="input-field">
+                                <div class="input-field nickname-field-group">
                                     <div class="row" style="margin-bottom: 0;">
-                                        <div class="col s12">
+                                        <div class="col s9" style="padding-right: 5px;">
                                             <i class="material-icons prefix">person</i>
                                             <input id="nickname" type="text" class="validate" required>
                                             <label for="nickname">닉네임</label>
                                             <span class="helper-text" data-error="닉네임을 입력하세요"></span>
                                         </div>
-                                    </div>
-                                    <div class="row" style="margin-bottom: 0;">
-                                        <div class="col s12">
+                                        <div class="col s3 signup-btn-col" style="padding-left: 5px;">
                                             <button id="check-nickname-btn" 
-                                                    class="btn-small waves-effect waves-light purple lighten-4" 
+                                                    class="btn waves-effect waves-light signup-btn-style" 
                                                     type="button"
-                                                    style="width: 100%;">
-                                                닉네임 중복 확인
+                                                    style="width: 100%;"> 
+                                                확인
                                             </button>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- 회원가입 버튼 -->
-                                 <button id="signup-btn" 
-                                         class="btn waves-effect waves-light purple lighten-4" 
+                                <button id="signup-btn" 
+                                         class="btn waves-effect waves-light signup-btn-style" 
                                          type="submit"
                                          disabled>
                                     회원가입
@@ -110,9 +97,7 @@
                 </div>
             </div>
         </main>
-         <!-- Materialize JS CDN -->
          <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-         <!-- signup.js -->
          <script type="module" src="signup.js"></script>
     </body>
 </html>
