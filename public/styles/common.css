@@ -3,8 +3,7 @@ body {
     display: flex;
     min-height: 100vh;
     flex-direction: column;
-    background: #c8d4f1; /* fallback */
-    background: linear-gradient(180deg, #c8d4f1 0%, #e7e9f8 100%);
+    background: #E6E8F0;
 }
 
 main {
