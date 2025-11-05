@@ -1,11 +1,12 @@
 header {
+    background-color: #AFC3E8 !important;
     min-height: 64px;
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
 }
 
 nav {
-    background-color: 3AFC3E8;
+    background-color: #AFC3E8 !important;
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
     box-shadow: none !important;
