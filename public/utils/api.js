@@ -220,29 +220,60 @@ export async function editPassword(passwordData) {
 }
 
 // file API
-// 파일 업로드
-export async function uploadFile(formData) {
+// Presigned URL 받기
+export async function getPresignedUrl(fileName, type) {
     try {
-        const response = await fetch(`${API_URL}/file`, {
-            method: 'POST',
+        const requestData = {
+            fileName: fileName,
+            type: type  // 'posts' or 'profiles'
+        };
+        const endpoint = `file/presigned-url`;
+        return http.post(endpoint, requestData, 'Presigned URL 요청 에러');
+    } catch (error) {
+        console.error('Presigned URL 요청 에러:', error);
+        throw error;
+    }
+}
+
+// S3에 파일 업로드
+export async function uploadFileToS3(presignedUrl, file) {
+    try {
+        const response = await fetch(presignedUrl, {
+            method: 'PUT',
             headers: {
+                'Content-Type': file.type,
             },
-            body: formData  // FormData 그대로 전송
+            body: file
         });
 
-        const apiResponse = await response.json();
-
-        // 응답 에러 처리
         if (!response.ok) {
-            throw new Error(apiResponse.error?.message);
+            throw new Error('S3 업로드 실패');
         }
 
-        if (!apiResponse.success) {
-            throw new Error(apiResponse.error?.message);
-        }
+        return response;
+    } catch (error) {
+        console.error('S3 업로드 에러:', error);
+        throw error;
+    }
+}
 
-        return apiResponse;
-        
+// 파일 업로드 (Presigned URL 방식)
+export async function uploadFile(file, type) {
+    try {
+        // 1. Lambda에서 Presigned URL 받기
+        const presignedResponse = await getPresignedUrl(file.name, type);
+        const { presignedUrl, fileKey, s3Url } = presignedResponse.data;
+
+        // 2. S3에 파일 직접 업로드
+        await uploadFileToS3(presignedUrl, file);
+
+        // 3. 업로드된 파일 정보 반환 (백엔드 요구 형식)
+        return {
+            fileName: file.name,
+            fileKey: fileKey,
+            s3Url: s3Url,
+            contentType: file.type
+        };
     } catch (error) {
         console.error('파일 업로드 에러:', error);
         throw error;

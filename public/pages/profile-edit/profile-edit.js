@@ -138,10 +138,7 @@ async function handleSaveProfile(e) {
     try {
         // 이미지가 새로 선택된 경우에만 업로드
         if (selectedImage) {
-            const formData = new FormData();
-            formData.append('file', selectedImage);
-            const uploadResponse = await uploadFile(formData);
-            profileImageData = uploadResponse.data;
+            profileImageData = await uploadFile(selectedImage, 'profiles');
         }
 
         // 항상 profileImageUrl 포함해서 전송
@@ -155,11 +152,7 @@ async function handleSaveProfile(e) {
 
         currentNickname = nickname;
         if(profileImageData) {
-            currentProfileImage = {
-                fileName: profileImageData.fileName,
-                url: profileImageData.fileUrl,
-                contentType: profileImageData.contentType
-            }
+            currentProfileImage = profileImageData;
         }
         selectedImage = null;
         nicknameVerified = false;

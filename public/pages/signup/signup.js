@@ -164,10 +164,7 @@ async function handleSignup(e) {
 
         // 이미지가 선택된 경우 업로드
         if (selectedImage) {
-            const formData = new FormData();
-            formData.append('file', selectedImage);
-            const uploadResponse = await uploadFile(formData);
-            profileImageData = uploadResponse.data;
+            profileImageData = await uploadFile(selectedImage, 'profiles');
         }
 
         const signupData = {
