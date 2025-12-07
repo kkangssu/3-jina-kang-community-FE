@@ -1,13 +1,14 @@
 const express = require('express');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const path = require('path');
+const BACKEND_HOST = process.env.BACKEND_HOST || 'localhost';
 
 const app = express();
 const PORT = 80;
 
 // API 프록시 설정 - Spring Boot로 전달
 app.use('/api', createProxyMiddleware({
-  target: 'http://localhost:8080',
+  target: `http://${BACKEND_HOST}:8080`,
   changeOrigin: true,
   logLevel: 'info',
   onError: (err, req, res) => {
@@ -18,7 +19,7 @@ app.use('/api', createProxyMiddleware({
 
 // Actuator 프록시 설정
 app.use('/actuator', createProxyMiddleware({
-  target: 'http://localhost:8080',
+  target: `http://${BACKEND_HOST}:8080`,
   changeOrigin: true,
   logLevel: 'info'
 }));
