@@ -1,8 +1,32 @@
 const express = require('express');
+const { createProxyMiddleware } = require('http-proxy-middleware');
 const path = require('path');
 
 const app = express();
-const PORT = 3000;
+const PORT = 80;
+
+// API 프록시 설정 - Spring Boot로 전달
+app.use('/api', createProxyMiddleware({
+  target: 'http://localhost:8080',
+  changeOrigin: true,
+  logLevel: 'info',
+  onError: (err, req, res) => {
+    console.error('Proxy Error:', err);
+    res.status(502).json({ error: 'Bad Gateway' });
+  }
+}));
+
+// Actuator 프록시 설정
+app.use('/actuator', createProxyMiddleware({
+  target: 'http://localhost:8080',
+  changeOrigin: true,
+  logLevel: 'info'
+}));
+
+// Health check 엔드포인트 - ALB
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'UP' });
+});
 
 // 정적 파일 제공 - public 폴더를 루트로 설정
 app.use(express.static('public'));
