@@ -19,7 +19,7 @@ console.log(`========================================`);
 
 // API 프록시 설정 - Spring Boot로 전달
 app.use('/api', createProxyMiddleware({
-  target: API_GATEWAY_URL,
+  target: `http://${BACKEND_HOST}:8080`,
   changeOrigin: true,
   pathRewrite: {
     '^/': '/api/'
