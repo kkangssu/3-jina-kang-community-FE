@@ -38,6 +38,7 @@ jobs:
             --name frontend-app \
             --restart unless-stopped \
             -p 80:80 \
+            -e BACKEND_URL=${{ secrets.BACKEND_HOST_AZ_A }} \
             ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY_FRONTEND }}:latest
           
           # 헬스 체크 대기
@@ -87,6 +88,7 @@ jobs:
             --name frontend-app \
             --restart unless-stopped \
             -p 80:80 \
+            -e BACKEND_URL=${{ secrets.BACKEND_HOST_AZ_B }} \
             ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY_FRONTEND }}:latest
           
           # 헬스 체크 대기
