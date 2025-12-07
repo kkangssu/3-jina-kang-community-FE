@@ -10,6 +10,9 @@ const PORT = 80;
 app.use('/api', createProxyMiddleware({
   target: `http://${BACKEND_HOST}:8080`,
   changeOrigin: true,
+  pathRewrite: {
+    '^/': '/api/'
+  },
   logLevel: 'info',
   onError: (err, req, res) => {
     console.error('Proxy Error:', err);
