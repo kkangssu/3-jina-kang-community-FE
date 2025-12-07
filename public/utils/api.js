@@ -227,7 +227,7 @@ export async function getPresignedUrl(fileName, type) {
             fileName: fileName,
             type: type  // 'posts' or 'profiles'
         };
-        const endpoint = `file/presigned-url`;
+        const endpoint = `upload`;
         return http.post(endpoint, requestData, 'Presigned URL 요청 에러');
     } catch (error) {
         console.error('Presigned URL 요청 에러:', error);
