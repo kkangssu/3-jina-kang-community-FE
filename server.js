@@ -1,10 +1,17 @@
 const express = require('express');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const path = require('path');
+const API_GATEWAY_URL = process.env.API_GATEWAY_URL;
 const BACKEND_HOST = process.env.BACKEND_HOST || 'localhost';
 
 const app = express();
 const PORT = 80;
+
+if (!API_GATEWAY_URL) {
+    console.error('❌ API_GATEWAY_URL 환경변수가 설정되지 않았습니다.');
+    console.error('GitHub Secrets에 API_GATEWAY_URL을 설정해주세요.');
+    process.exit(1);
+}
 
 console.log(`========================================`);
 console.log(`🚀 Proxy Target Configured: ${BACKEND_HOST}`);
@@ -12,7 +19,7 @@ console.log(`========================================`);
 
 // API 프록시 설정 - Spring Boot로 전달
 app.use('/api', createProxyMiddleware({
-  target: `http://${BACKEND_HOST}:8080`,
+  target: API_GATEWAY_URL,
   changeOrigin: true,
   pathRewrite: {
     '^/': '/api/'

@@ -38,6 +38,7 @@ jobs:
             --name frontend-app \
             --restart unless-stopped \
             -p 80:80 \
+            -e API_GATEWAY_URL=${{ secrets.API_GATEWAY_URL }} \
             -e BACKEND_HOST=${{ secrets.BACKEND_HOST_AZ_A }} \
             ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY_FRONTEND }}:latest
           
@@ -88,6 +89,7 @@ jobs:
             --name frontend-app \
             --restart unless-stopped \
             -p 80:80 \
+            -e API_GATEWAY_URL=${{ secrets.API_GATEWAY_URL }} \
             -e BACKEND_HOST=${{ secrets.BACKEND_HOST_AZ_B }} \
             ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY_FRONTEND }}:latest
           
