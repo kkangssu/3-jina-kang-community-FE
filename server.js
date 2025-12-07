@@ -6,6 +6,10 @@ const BACKEND_HOST = process.env.BACKEND_HOST || 'localhost';
 const app = express();
 const PORT = 80;
 
+console.log(`========================================`);
+console.log(`🚀 Proxy Target Configured: ${BACKEND_HOST}`);
+console.log(`========================================`);
+
 // API 프록시 설정 - Spring Boot로 전달
 app.use('/api', createProxyMiddleware({
   target: `http://${BACKEND_HOST}:8080`,
@@ -14,9 +18,12 @@ app.use('/api', createProxyMiddleware({
     '^/': '/api/'
   },
   logLevel: 'info',
+  onProxyReq: (proxyReq, req, res) => {
+    console.log(`[Proxy] Sending to: ${BACKEND_HOST}${proxyReq.path}`);
+  },
   onError: (err, req, res) => {
-    console.error('Proxy Error:', err);
-    res.status(502).json({ error: 'Bad Gateway' });
+    console.error('❌ Proxy Error:', err);
+    res.status(504).json({ error: 'Proxy Timeout', details: err.message });
   }
 }));
 
@@ -24,7 +31,11 @@ app.use('/api', createProxyMiddleware({
 app.use('/actuator', createProxyMiddleware({
   target: `http://${BACKEND_HOST}:8080`,
   changeOrigin: true,
-  logLevel: 'info'
+  logLevel: 'info',
+  onError: (err, req, res) => {
+      console.error('❌ Actuator Proxy Error:', err);
+      res.status(504).send('Actuator Error');
+  }
 }));
 
 // Health check 엔드포인트 - ALB
