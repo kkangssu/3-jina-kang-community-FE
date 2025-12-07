@@ -8,27 +8,19 @@ on:
     branches: [ main ]
 
 jobs:
-  deploy:
+  deploy-az-a:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     
-    strategy:
-      matrix:
-        include:
-          - az: AZ-A
-            host: ${{ secrets.EC2_HOST_AZ_A_FRONTEND }}
-          - az: AZ-B
-            host: ${{ secrets.EC2_HOST_AZ_B_FRONTEND }}
-    
     steps:
-    - name: Deploy to ${{ matrix.az }}
+    - name: Deploy to AZ-A
       uses: appleboy/ssh-action@v1.0.3
       with:
-        host: ${{ matrix.host }}
+        host: ${{ secrets.EC2_HOST_AZ_A_FRONTEND }}
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-          echo "🚀 Starting deployment on ${{ matrix.az }}..."
+          echo "🚀 Starting deployment on AZ-A..."
           
           # ECR 로그인
           aws ecr get-login-password --region ap-northeast-2 | \
@@ -54,13 +46,62 @@ jobs:
           
           # 헬스 체크
           if curl -f http://localhost:80/health; then
-            echo "✅ Deployment successful on ${{ matrix.az }}!"
+            echo "✅ Deployment successful on AZ-A!"
           else
-            echo "❌ Health check failed on ${{ matrix.az }}"
+            echo "❌ Health check failed on AZ-A"
             exit 1
           fi
           
           # 이전 이미지 정리
           docker image prune -f
           
-          echo "🎉 Deployment completed on ${{ matrix.az }}"
+          echo "🎉 Deployment completed on AZ-A"
+  
+  deploy-az-b:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    
+    steps:
+    - name: Deploy to AZ-B
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.EC2_HOST_AZ_B_FRONTEND }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          echo "🚀 Starting deployment on AZ-B..."
+          
+          # ECR 로그인
+          aws ecr get-login-password --region ap-northeast-2 | \
+            docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
+          
+          # 최신 이미지 pull
+          docker pull ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY_FRONTEND }}:latest
+          
+          # 기존 컨테이너 중지 및 제거
+          docker stop frontend-app || true
+          docker rm frontend-app || true
+          
+          # 새 컨테이너 실행
+          docker run -d \
+            --name frontend-app \
+            --restart unless-stopped \
+            -p 80:80 \
+            ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY_FRONTEND }}:latest
+          
+          # 헬스 체크 대기
+          echo "⏳ Waiting for application to start..."
+          sleep 15
+          
+          # 헬스 체크
+          if curl -f http://localhost:80/health; then
+            echo "✅ Deployment successful on AZ-B!"
+          else
+            echo "❌ Health check failed on AZ-B"
+            exit 1
+          fi
+          
+          # 이전 이미지 정리
+          docker image prune -f
+          
+          echo "🎉 Deployment completed on AZ-B"
