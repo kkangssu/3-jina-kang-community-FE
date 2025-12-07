@@ -17,6 +17,12 @@ console.log(`========================================`);
 console.log(`🚀 Proxy Target Configured: ${BACKEND_HOST}`);
 console.log(`========================================`);
 
+app.get('/config', (req, res) => {
+    res.json({
+        apiGatewayUrl: API_GATEWAY_URL
+    });
+});
+
 // API 프록시 설정 - Spring Boot로 전달
 app.use('/api', createProxyMiddleware({
   target: `http://${BACKEND_HOST}:8080`,

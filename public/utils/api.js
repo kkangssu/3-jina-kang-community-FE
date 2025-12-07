@@ -1,10 +1,28 @@
 import { API_URL } from './config.js';
 
+let BASE_URL = "";
+async function loadConfig() {
+    try {
+        const response = await fetch('/config'); // server.js에 요청
+        const config = await response.json();
+        
+        // 가져온 API Gateway 주소로 설정!
+        // 예: https://...execute-api.../prod
+        BASE_URL = config.apiGatewayUrl; 
+        console.log("Config loaded:", BASE_URL);
+    } catch (e) {
+        console.error("설정 로드 실패:", e);
+    }
+}
+
+loadConfig();
+
 // 공통 API 요청 함수
 // 인증 불필요
 export async function request (endpoint, options = {}, errorContext) {
+    if (!BASE_URL) await loadConfig();
     try {
-        const response = await fetch( `${API_URL}/${endpoint}`, {
+        const response = await fetch( `${BASE_URL}/${API_URL}/${endpoint}`, {
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -29,6 +47,7 @@ export async function request (endpoint, options = {}, errorContext) {
 }
 // 인증 필요
 export async function requestWithAuth (endpoint, options = {}, errorContext) {
+    if (!BASE_URL) await loadConfig();
     try {
         const accessToken = localStorage.getItem('accessToken');
 
@@ -36,7 +55,7 @@ export async function requestWithAuth (endpoint, options = {}, errorContext) {
             throw new Error('UNAUTHORIZED');
         }
 
-        const response = await fetch( `${API_URL}/${endpoint}`, {
+        const response = await fetch( `${BASE_URL}/${API_URL}/${endpoint}`, {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${accessToken}`,
@@ -222,13 +241,27 @@ export async function editPassword(passwordData) {
 // file API
 // Presigned URL 받기
 export async function getPresignedUrl(fileName, type) {
+    if (!BASE_URL) await loadConfig();
+
     try {
-        const requestData = {
-            fileName: fileName,
-            type: type  // 'posts' or 'profiles'
-        };
-        const endpoint = `upload`;
-        return http.post(endpoint, requestData, 'Presigned URL 요청 에러');
+        const response = await fetch(`${BASE_URL}/upload`, { 
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json' 
+            },
+            body: JSON.stringify({ 
+                fileName: fileName, 
+                type: type
+            })
+        });
+
+        const apiResponse = await response.json();
+
+        if (!response.ok) {
+            throw new Error(apiResponse.message || 'Presigned URL 발급 실패');
+        }
+
+        return apiResponse;
     } catch (error) {
         console.error('Presigned URL 요청 에러:', error);
         throw error;
