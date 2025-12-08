@@ -1,0 +1,173 @@
+/* 헤더: 뒤로가기 / 저장 버튼 */
+.post-edit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+/* 뒤로가기 버튼 */
+.btn-back {
+    background: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 8px !important;
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-back i {
+    color: #444c66;
+    font-size: 28px;
+}
+
+.btn-back:hover {
+    background-color: rgba(0, 0, 0, 0.05) !important;
+    border-radius: 50%;
+}
+
+/* 저장 버튼 */
+.btn-save {
+    padding-left: 24px;
+    padding-right: 24px;
+    height: 48px;
+    line-height: 48px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    background-color: #dad7ff !important;
+    box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.3) !important;
+}
+
+/* 입력 카드 (제목, 본문) */
+.post-input-card {
+    margin-top: 16px;
+    margin-bottom: 16px;
+    padding: 24px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    background-color: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Input & Textarea 스타일 */
+.post-input-card input,
+.post-input-card textarea {
+    width: 100%;
+    border: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 1rem;
+    color: #444c66 !important;
+    background-color: transparent !important;
+    resize: none;
+    font-family: inherit;
+}
+
+.post-input-card input:focus,
+.post-input-card textarea:focus {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.post-input-card input::placeholder,
+.post-input-card textarea::placeholder {
+    color: #444c66c7 !important;
+}
+
+/* 제목 input */
+.post-input-card input {
+    height: 40px;
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+/* 본문 textarea */
+.post-input-card textarea {
+    min-height: 300px;
+    line-height: 1.6;
+}
+
+/* 파일 업로드 섹션 */
+.file-upload-section {
+    margin-top: 16px;
+    margin-bottom: 16px;
+}
+
+/* 파일 첨부 버튼 */
+.btn-file {
+    padding-left: 24px;
+    padding-right: 24px;
+    height: 48px;
+    line-height: 48px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    background-color: #dad7ff !important;
+    box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.3) !important;
+}
+
+/* 이미지 미리보기 리스트 */
+.file-preview-list {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* 이미지 미리보기 아이템 */
+.image-preview-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* 미리보기 썸네일 */
+.image-preview-item img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+/* 파일명 */
+.image-preview-item .file-name {
+    flex: 1;
+    color: #444c66;
+    font-size: 0.9rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* 삭제 버튼 */
+.btn-remove-image {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    color: #444c66c7;
+    transition: color 0.3s;
+}
+
+.btn-remove-image:hover {
+    color: #ff5252;
+}
+
+.btn-remove-image i {
+    font-size: 20px;
+}

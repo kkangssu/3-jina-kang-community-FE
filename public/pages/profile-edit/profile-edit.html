@@ -4,7 +4,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>login</title>
-        
+
         <!-- Materialize CSS CDN -->
          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
         <!-- Material Icons -->
@@ -12,66 +12,56 @@
         <!-- 공통 CSS -->
         <link rel="stylesheet" href="../../styles/common.css"></link>
         <link rel="stylesheet" href="../../styles/header.css"></link>
-        <!-- 비밀번호 수정 페이지 CSS -->
-        <link rel="stylesheet" href="./profile-edit.css">
-     
+        <!-- 게시글 수정 페이지 CSS -->
+        <link rel="stylesheet" href="./post-edit.css">
+
     </head>
     <body>
         <header></header>
         <main class="container">
             <div class="row">
                 <div class="col s12 m8 offset-m2 l6 offset-l3">
-                    <div class="profile-edit-container">
-                        <div class="card-content">
-                            <span class="card-title center-align">프로필 수정</span>
-                            <div class="center-align profile-image-section">
-                                <img id="profile-image-preview" alt="프로필 이미지" class="circle responsive-img">
-                                <input type="file" id="profile-image-upload" accept="image/*" hidden>
-                                <label for="profile-image-upload" class="btn waves-effect waves-light" style="margin-top: 15px;">
-                                    이미지 변경 <i class="material-icons right">file_upload</i>
-                                </label>
-                            </div>
-                            <form id="profile-edit-form">
-                                <div class="input-field">
-                                    <i class="material-icons prefix">email</i>
-                                    <input id="email" type="email" class="validate" disabled>
-                                    <label for="email">이메일</label>
-                                </div>
-    
-                                <div class="row" style="margin-bottom: 0;">
-                                    <div class="input-field col s8">
-                                        <i class="material-icons prefix">account_circle</i>
-                                        <input id="nickname" type="text" class="validate" required>
-                                        <label for="nickname">닉네임</label>
-                                    </div>
-                                    <div class="col s4" style="padding-top: 20px;">
-                                        <button class="btn waves-effect waves-light" id="check-nickname-btn" type="button">
-                                            중복확인
-                                        </button>
-                                    </div>
-                                </div>
-                                
-                                <div class="button-group" style="margin-top: 20px;">
-                                    <button class="btn waves-effect waves-light " type="submit" id="save-btn" disabled>
-                                        저장하기 <i class="material-icons right">save</i>
-                                    </button>
-                                    <button class="btn waves-effect waves-light grey" type="button" id="password-change-btn">
-                                        비밀번호 변경
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
+                    <!-- 헤더: 뒤로가기 / 저장 버튼 -->
+                    <div class="post-edit-header">
+                        <button type="button" id="back-btn" class="btn waves-effect waves-light btn-back">
+                            <i class="material-icons">arrow_back</i>
+                        </button>
+                        <button type="button" id="post-save-btn" class="btn waves-effect waves-light btn-save">
+                            저장
+                        </button>
                     </div>
+
+                    <!-- 폼 -->
+                    <form id="post-form">
+                        <!-- 제목 입력 카드 -->
+                        <div class="post-input-card">
+                            <input id="post-title" type="text" placeholder="제목" required>
+                        </div>
+
+                        <!-- 본문 입력 카드 -->
+                        <div class="post-input-card">
+                            <textarea id="post-content" placeholder="본문" required></textarea>
+                        </div>
+
+                        <!-- 파일 첨부 버튼 -->
+                        <div class="file-upload-section">
+                            <button type="button" class="btn waves-effect waves-light btn-file">
+                                파일 첨부
+                            </button>
+                            <input type="file" id="file-input" accept="image/*" multiple style="display: none;">
+                        </div>
+
+                        <!-- 이미지 미리보기 영역 -->
+                        <div id="file-preview-list" class="file-preview-list"></div>
+                    </form>
                 </div>
             </div>
         </main>
-         <!-- Materialize JS CDN -->
-         <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-         <!-- layout.js -->
-         <script type="module" src="../../utils/layout.js"></script>
-         <!-- 공통 JS -->
-         <script type="module" src="../../utils/common.js"></script>
-         <!-- password-change.js -->
-         <script type="module" src="./profile-edit.js"></script>
-    </body>
+        <!-- Materialize JS CDN -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+        <!-- layout.js -->
+        <script type="module" src="../../utils/layout.js"></script>
+        <!-- post-edit.js -->
+        <script type="module" src="./post-edit.js"></script>
+   </body>
 </html>
