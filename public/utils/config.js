@@ -5,7 +5,7 @@ const API_URL = '/api'
 const DEFAULT_PROFILE_IMAGE = {
     fileName: 'base_user_profile.png',
     fileKey: 'uploads/profiles/050fa20b-51fa-4cc5-a114-8454d74738f0.png',
-    s3Url: 's3://ktb-community-jina/uploads/profiles/050fa20b-51fa-4cc5-a114-8454d74738f0.png',
+    s3Url: 'https://ktb-community-jina.s3.ap-northeast-2.amazonaws.com/uploads/profiles/050fa20b-51fa-4cc5-a114-8454d74738f0.png',
     contentType: 'image/png',
     url: 'https://ktb-community-jina.s3.ap-northeast-2.amazonaws.com/uploads/profiles/050fa20b-51fa-4cc5-a114-8454d74738f0.png'
 }
