@@ -20,48 +20,39 @@
         <main class="container">
             <div class="row">
                 <div class="col s12 m8 offset-m2 l6 offset-l3">
-                    <div class="post-write-container">
-                        <div class="card-content">
-                            <!-- 게시물 리스트로 돌아가기 -->
-                            <button id="back-btn" class="btn-flat">
-                                <i class="material-icons left">arrow_back</i>
-                            </button>
-                            <form id="post-form">
-                                <!-- 게시글 제목 입력 필드 -->
-                                <div class="input-field">
-                                    <input id="post-title" type="text" required>
-                                    <label for="post-title">제목</label>
-                                </div>
-
-                                <!-- 게시글 내용 입력 필드 -->
-                                <div class="input-field">
-                                    <textarea id="post-content" class="materialize-textarea" required></textarea>
-                                    <label for="post-content">본문</label>
-                                </div>
-
-                                <!-- 파일 첨부 -->
-                                <div class="file-field input-field">
-                                    <div class="btn">
-                                        <span>파일 첨부</span>
-                                        <!-- 일단은 사진만 첨부되도록 설정 -->
-                                        <input type="file" id="file-input" accept="image/*" multiple>
-                                    </div>
-                                    <div class="file-path-wrapper">
-                                        <input class="file-path validate" type="text" placeholder="이미지를 선택하세요.">
-                                    </div>
-                                </div>
-
-                                <!-- 첨부된 파일 파일명 목록 -->
-                                <div id="file-list" class="collection" style="display: none;">
-                                </div>
-
-                                <!-- 저장 버튼 -->
-                                <button id="post-save-btn" type="submit" class="btn waves-effect waves-light">
-                                    저장<i class="material-icons right">send</i>
-                                </button>
-                            </form>
-                        </div>
+                    <!-- 헤더: 뒤로가기 / 저장 버튼 -->
+                    <div class="post-write-header">
+                        <button id="back-btn" class="btn waves-effect waves-light btn-back">
+                            <i class="material-icons">arrow_back</i>
+                        </button>
+                        <button id="post-save-btn" class="btn waves-effect waves-light btn-save">
+                            저장
+                        </button>
                     </div>
+
+                    <!-- 폼 -->
+                    <form id="post-form">
+                        <!-- 제목 입력 카드 -->
+                        <div class="post-input-card">
+                            <input id="post-title" type="text" placeholder="제목" required>
+                        </div>
+
+                        <!-- 본문 입력 카드 -->
+                        <div class="post-input-card">
+                            <textarea id="post-content" placeholder="본문" required></textarea>
+                        </div>
+
+                        <!-- 파일 첨부 버튼 -->
+                        <div class="file-upload-section">
+                            <button type="button" class="btn waves-effect waves-light btn-file">
+                                파일 첨부
+                            </button>
+                            <input type="file" id="file-input" accept="image/*" multiple style="display: none;">
+                        </div>
+
+                        <!-- 이미지 미리보기 영역 -->
+                        <div id="file-preview-list" class="file-preview-list"></div>
+                    </form>
                 </div>
             </div>
         </main>

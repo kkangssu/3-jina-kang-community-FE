@@ -6,334 +6,241 @@ if (!isAuthenticated()) {
     window.location.href = '/pages/login/login.html';
 }
 
-let uploadedFiles = [];
+let selectedImages = [];
 
 // DOM 요소
-// 뒤로가기 버튼
 const backBtn = document.getElementById('back-btn');
-// 게시물
 const postForm = document.getElementById('post-form');
 const postTitle = document.getElementById('post-title');
 const postContent = document.getElementById('post-content');
 const fileInput = document.getElementById('file-input');
-const fileList = document.getElementById('file-list');
+const btnFile = document.querySelector('.btn-file');
+const filePreviewList = document.getElementById('file-preview-list');
 const postSaveBtn = document.getElementById('post-save-btn');
 
 // 초기화
 function init() {
-    // Materialize textarea 자동 높이 조절 초기화
-    M.textareaAutoResize(postContent);
-
     // 이벤트리스너 등록
     backBtn.addEventListener('click', handleBackClick);
     postForm.addEventListener('submit', handleSubmit);
+    btnFile.addEventListener('click', () => fileInput.click());
     fileInput.addEventListener('change', handleFileSelect);
 }
 
-// 파일 첨부
+// 파일 선택 처리
 const MAX_FILE_COUNT = 5;
-function handleFileSelect(e) {
-    const files = e.target.files;
+async function handleFileSelect(e) {
+    const files = Array.from(e.target.files);
 
-    // 파일이 선택되지 않은 경우
-    if(!files || files.length === 0) {
+    if (!files || files.length === 0) {
         return;
     }
 
-    const currentFileCount = uploadedFiles.length;
+    const currentFileCount = selectedImages.length;
     const newFileCount = files.length;
     const totalFileCount = currentFileCount + newFileCount;
 
     // 첨부할 파일 개수를 초과한 경우
-    if(totalFileCount > MAX_FILE_COUNT) {
+    if (totalFileCount > MAX_FILE_COUNT) {
         M.toast({ html: `최대 ${MAX_FILE_COUNT}개까지 첨부할 수 있습니다.` });
         e.target.value = '';
         return;
     }
 
     // 선택된 파일 순회하며 업로드
-    Array.from(files).forEach(async (file) => {
+    for (const file of files) {
         // 파일 타입 검사
-        const validation = validateFile(file);
+        if (!file.type.startsWith('image/')) {
+            M.toast({ html: `${file.name}은(는) 이미지 파일이 아닙니다.` });
+            continue;
+        }
 
-        if(!validation.valid) {
-            M.toast({ html: validation.message });
-            return;
+        // 파일 크기 검사 (5MB)
+        const MAX_FILE_SIZE = 5 * 1024 * 1024;
+        if (file.size > MAX_FILE_SIZE) {
+            M.toast({ html: `${file.name}의 크기가 5MB를 초과합니다.` });
+            continue;
         }
 
         // 파일 업로드
-        uploadSingleFile(file);
-    });
+        await uploadSingleFile(file);
+    }
+
     e.target.value = '';
 }
 
-// 파일 업로드
+// 단일 파일 S3 업로드
 async function uploadSingleFile(file) {
     try {
-        // 로딩 표시 (파일명과 함께)
-        showFileUploadLoading(file.name);
-        // FormData 생성
-        const formData = new FormData();
-        formData.append('file', file);
-        // 파일 업로드
-        const response = await uploadFile(formData);
-        // 성공
-        if(response.success || response.data) {
-            uploadedFiles.push({
-                fileName: response.data.fileName,
-                fileUrl: response.data.fileUrl,
-                contentType: response.data.contentType,
-                fileOrder: null
-            })
+        // 업로드 중 표시
+        M.toast({ html: `${file.name} 업로드 중...`, classes: 'blue darken-1' });
 
-            updateFileList();
+        // S3 업로드 (presigned URL 방식)
+        const imageData = await uploadFile(file, 'posts');
 
-            M.toast({ html: `${file.name} 업로드 완료` });
-        } else if(!response.success && response.error) {
-            M.toast({ html: `${file.name} 업로드 실패: ${response.message}` });
-        } else {
-            throw new Error('파일 업로드 응답이 올바르지 않습니다.');
-        }
+        // fileOrder 추가
+        const imageWithOrder = {
+            fileName: imageData.fileName,
+            fileOrder: selectedImages.length,
+            fileKey: imageData.fileKey,
+            s3Url: imageData.s3Url,
+            contentType: imageData.contentType
+        };
+
+        selectedImages.push(imageWithOrder);
+
+        // 미리보기 표시
+        displayImagePreview(file, imageWithOrder);
+
+        M.toast({ html: `${file.name} 업로드 완료` });
     } catch (error) {
-        console.error('파일 업로드 에러: ', error);
+        console.error('이미지 업로드 에러:', error);
         M.toast({ html: `${file.name} 업로드 실패: ${error.message}` });
-    } finally {
-        hideFileUploadLoading();
     }
+}
+
+// 이미지 미리보기 표시
+function displayImagePreview(file, imageData) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const previewItem = document.createElement('div');
+        previewItem.className = 'image-preview-item';
+        previewItem.dataset.index = imageData.fileOrder;
+
+        previewItem.innerHTML = `
+            <img src="${e.target.result}" alt="${file.name}">
+            <span class="file-name">${file.name}</span>
+            <button type="button" class="btn-remove-image">
+                <i class="material-icons">close</i>
+            </button>
+        `;
+
+        // 삭제 버튼 이벤트
+        const removeBtn = previewItem.querySelector('.btn-remove-image');
+        removeBtn.addEventListener('click', () => removeImage(imageData.fileOrder));
+
+        filePreviewList.appendChild(previewItem);
+    };
+    reader.readAsDataURL(file);
+}
+
+// 이미지 삭제
+function removeImage(index) {
+    // 배열에서 삭제
+    selectedImages = selectedImages.filter(img => img.fileOrder !== index);
+
+    // fileOrder 재정렬
+    selectedImages.forEach((img, idx) => {
+        img.fileOrder = idx;
+    });
+
+    // 미리보기 다시 렌더링
+    renderImagePreviews();
+
+    M.toast({ html: '이미지가 삭제되었습니다.' });
+}
+
+// 이미지 미리보기 전체 다시 렌더링
+function renderImagePreviews() {
+    filePreviewList.innerHTML = '';
+
+    selectedImages.forEach((imageData) => {
+        // 미리보기를 다시 만들기 위해 fetch로 이미지 가져오기
+        fetch(imageData.s3Url)
+            .then(res => res.blob())
+            .then(blob => {
+                const file = new File([blob], imageData.fileName, { type: imageData.contentType });
+                displayImagePreview(file, imageData);
+            })
+            .catch(err => {
+                console.error('이미지 미리보기 렌더링 실패:', err);
+            });
+    });
 }
 
 // 입력 유효성 검사
 function validateForm() {
     const title = postTitle.value.trim();
     const content = postContent.value.trim();
-    
-    // 제목 필수 입력 검사
+
     if (!title) {
-        return {
-            valid: false,
-            message: '제목을 입력해주세요.'
-        };
-    }
-    
-    // 제목 최대 길이 검사 (255자)
-    if (title.length > 255) {
-        return {
-            valid: false,
-            message: `제목은 최대 255자까지 입력 가능합니다. (현재 ${title.length}자)`
-        };
+        return { valid: false, message: '제목을 입력해주세요.' };
     }
 
-    if(!content) {
-        return {
-            valid: false,
-            message: '본문을 입력해주세요.'
-        };
+    if (title.length > 255) {
+        return { valid: false, message: `제목은 최대 255자까지 입력 가능합니다. (현재 ${title.length}자)` };
     }
-    
-    // 모든 검증 통과
-    return {
-        valid: true,
-        message: ''
-    };
+
+    if (!content) {
+        return { valid: false, message: '본문을 입력해주세요.' };
+    }
+
+    return { valid: true, message: '' };
 }
 
-// 저장 버튼 이벤트 핸들러
+// 게시글 저장
 async function handleSubmit(event) {
-    // 기본 폼 제출 동작 방지
     event.preventDefault();
-    
+
     // 폼 유효성 검사
     const validation = validateForm();
     if (!validation.valid) {
         M.toast({ html: validation.message });
         return;
     }
-    
+
     try {
-        // 제출 버튼 비활성화 - 중복 제출 방지
-        toggleSubmitButton(true);
-        
-        // 제목, 본문 가져오기
-        const pTitle = postTitle.value.trim();
-        const pContent = postContent.value.trim();
-        
-        // fileOrder 부여
-        const imageList = assignFileOrder();
-        
+        // 제출 버튼 비활성화
+        postSaveBtn.disabled = true;
+        const originalText = postSaveBtn.textContent;
+        postSaveBtn.textContent = '저장 중...';
+
+        const title = postTitle.value.trim();
+        const content = postContent.value.trim();
+
         // 요청 데이터 구성
-        const requestData = {
-            title: pTitle,
-            content: pContent,
-            postImages: imageList
+        const postData = {
+            title: title,
+            content: content,
+            postImages: selectedImages
         };
-        
-        // 서버에 게시물 생성 요청
-        const response = await createPost(requestData);
-        
-        // 성공 응답 처리
+
+        // 서버에 게시글 생성 요청
+        const response = await createPost(postData);
+
         if (response.success && response.data) {
-            M.toast({ html: '게시물이 작성되었습니다.' });
-            
-            // 작성된 게시물 상세 페이지로 이동
+            M.toast({ html: '게시글이 작성되었습니다.' });
+
+            // 작성된 게시글 상세 페이지로 이동
             const postId = response.data.postId;
-            console.log('이동할 URL:', `${ROUTES.POST_DETAIL}?id=${postId}`);
             window.location.href = `${ROUTES.POST_DETAIL}?postId=${postId}`;
-        } else if (!response.success && response.error) {
-            // 백엔드 에러 응답 처리
-            M.toast({ html: '게시글 저장 실패: ' + response.error.message });
-            toggleSubmitButton(false);
         } else {
-            throw new Error('게시물 작성 응답이 올바르지 않습니다.');
+            throw new Error('게시글 작성 응답이 올바르지 않습니다.');
         }
-        
     } catch (error) {
-        // 네트워크 에러 또는 기타 예외 처리
-        console.error('게시물 작성 실패:', error);    
+        console.error('게시글 작성 실패:', error);
         M.toast({ html: '게시글 저장 실패: ' + error.message });
-        toggleSubmitButton(false);
+        postSaveBtn.disabled = false;
+        postSaveBtn.textContent = '저장';
     }
 }
-
 
 // 뒤로가기 버튼
 function handleBackClick() {
-    console.log('뒤로가기 버튼 클릭됨');
     const title = postTitle.value.trim();
     const content = postContent.value.trim();
-    const hasFiles = uploadedFiles.length > 0;
-    
-    // 작성 중인 내용이 있는지 확인
+    const hasFiles = selectedImages.length > 0;
+
     const hasContent = title || content || hasFiles;
-    
+
     if (hasContent) {
-        // 작성 중인 내용이 있으면 확인 메시지 표시
         const confirmed = confirm('작성 중인 내용이 있습니다. 저장하지 않고 나가시겠습니까?');
-        
         if (!confirmed) {
-            // 취소하면 아무것도 하지 않음
             return;
         }
     }
-    
-    // 게시물 목록 페이지로 이동
+
     window.location.href = ROUTES.POSTS;
-}
-
-// 유틸리티 함수
-// 파일 유효성 검증
-function validateFile(file) {
-    // 파일 크기 제한 (5MB)
-    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB를 바이트로 변환
-    
-    // 허용된 이미지 타입
-    const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-    
-    // 파일 타입 검증
-    if (!ALLOWED_TYPES.includes(file.type)) {
-        return {
-            valid: false,
-            message: `${file.name}은(는) 지원하지 않는 파일 형식입니다. (JPG, PNG, WEBP만 가능)`
-        };
-    }
-    
-    // 파일 크기 검증
-    if (file.size > MAX_FILE_SIZE) {
-        const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
-        return {
-            valid: false,
-            message: `${file.name}의 크기가 너무 큽니다. 최대 5MB까지 업로드 가능합니다.)`
-        };
-    }
-    
-    // 모든 검증 통과
-    return {
-        valid: true,
-        message: ''
-    };
-}
-
-// 파일 목록 업데이트
-function updateFileList() {
-    // 파일이 없으면 목록 숨김
-    if (uploadedFiles.length === 0) {
-        fileList.style.display = 'none';
-        fileList.innerHTML = '';
-        return;
-    }
-    
-    // 파일 목록 표시
-    fileList.style.display = 'block';
-    
-    // 파일 목록 HTML 생성
-    fileList.innerHTML = uploadedFiles.map((file, index) => `
-        <div class="collection-item">
-            <div class="row valign-wrapper" style="margin-bottom: 0;">
-                <div class="col s10">
-                    <i class="material-icons tiny">image</i>
-                    <span>${file.fileName}</span>
-                </div>
-                <div class="col s2 right-align">
-                    <button type="button" class="btn-flat btn-small" onclick="removeFile(${index})" style="padding: 0;">
-                        <i class="material-icons">close</i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    `).join('');
-}
-
-// 파일 삭제
-function removeFile(index) {
-    // 배열에서 해당 인덱스 제거
-    uploadedFiles.splice(index, 1);
-    
-    // UI 업데이트
-    updateFileList();
-    
-    // 삭제 완료 메시지
-    M.toast({ html: '파일이 삭제되었습니다.' });
-}
-
-// 저장 전 첨부 파일에 번호 부여
-function assignFileOrder() {
-    return uploadedFiles.map((file, index) => ({
-        ...file,
-        fileOrder: index + 1 // 1부터 시작
-    }));
-}
-
-// 저장 버튼 활성/비활성 토글
-function toggleSubmitButton(disabled) {
-    postSaveBtn.disabled = disabled;
-    
-    if (disabled) {
-        postSaveBtn.classList.add('disabled');
-    } else {
-        postSaveBtn.classList.remove('disabled');
-    }
-}
-
-// 파일 업로드 로딩 표시
-function showFileUploadLoading(fileName) {
-    // 간단하게 버튼 비활성화 + 토스트로 업로드 중 표시
-    fileInput.disabled = true;
-    postSaveBtn.disabled = true;
-    
-    M.toast({
-        html: `${fileName} 업로드 중...`,
-        classes: 'blue darken-1',
-        displayLength: 100000 // 업로드 완료될 때까지 유지
-    });
-}
-
-// 파일 업로드 로딩 숨김
-function hideFileUploadLoading() {
-    // 버튼 재활성화
-    fileInput.disabled = false;
-    postSaveBtn.disabled = false;
-    
-    // 토스트 닫기
-    M.Toast.dismissAll();
 }
 
 document.addEventListener('DOMContentLoaded', init);
