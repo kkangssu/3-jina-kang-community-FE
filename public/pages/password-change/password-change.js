@@ -35,10 +35,19 @@ async function handleCheckOldPassword() {
         if(response.data) {
             M.toast({ html: '기존 비밀번호가 일치합니다.' });
             oldPasswordVerified = true;
+
+            // 새 비밀번호 입력 필드 활성화
+            newPasswordInput.disabled = false;
+            confirmPasswordInput.disabled = false;
+
             updateChangePasswordButtonState();
         } else {
             M.toast({ html: '기존 비밀번호가 일치하지 않습니다.' });
             oldPasswordVerified = false;
+
+            // 새 비밀번호 입력 필드 비활성화
+            newPasswordInput.disabled = true;
+            confirmPasswordInput.disabled = true;
             changePasswordBtn.disabled = true;
         }
     } catch (error) {
