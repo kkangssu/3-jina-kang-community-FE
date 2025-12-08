@@ -164,6 +164,19 @@ export async function deletePost(postId) {
     return http.deleteWithAuth(endpoint, '게시글 삭제 에러');
 }
 
+// postLike API
+// 좋아요
+export async function postLike(postId) {
+    const endpoint = `postLike/${postId}`;
+    return http.postWithAuth(endpoint, {}, '좋아요 에러');
+}
+
+// 좋아요 취소
+export async function deletePostLike(postId) {
+    const endpoint = `postLike/${postId}`;
+    return http.deleteWithAuth(endpoint, '좋아요 취소 에러');
+}
+
 // comment API
 // 댓글 목록 조회
 export async function getCommentList(postId, cursor = null) {

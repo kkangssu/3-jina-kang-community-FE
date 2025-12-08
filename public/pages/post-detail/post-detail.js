@@ -1,4 +1,4 @@
-import { getPostDetail, getCommentList, createComment, deletePost, deleteComment, updateComment } from '../../utils/api.js';
+import { getPostDetail, getCommentList, createComment, deletePost, deleteComment, updateComment, postLike, deletePostLike } from '../../utils/api.js';
 import { formatDateTime } from '../../utils/common.js';
 import { isAuthenticated } from '../../utils/auth.js';
 import { ROUTES } from '../../utils/routes.js';
@@ -8,6 +8,7 @@ if (!isAuthenticated()) {
 }
 
 let postId = null;
+let currentPost = null;
 let currentCursor = null;
 let isLoading = false;
 let hasNext = true;
@@ -33,8 +34,8 @@ function getPostIdFromURL() {
 async function fetchPostDetail() {
     try {
         const apiData = await getPostDetail(postId);
-        const post = apiData.data;
-        renderPostDetail(post);
+        currentPost = apiData.data;
+        renderPostDetail(currentPost);
     } catch (error) {
         M.toast({ html: '게시글 상세 조회 실패: ' + error.message });
         console.error('게시글 상세 조회 에러: ', error);
@@ -71,6 +72,10 @@ function renderPostDetail(post) {
         `
         : '';
 
+    // 좋아요 아이콘 (isLiked에 따라 다른 아이콘)
+    const likeIconClass = post.isLiked ? 'thumb_up' : 'thumb_up_off_alt';
+    const likeIconColor = post.isLiked ? 'color: #7c3aed;' : '';
+
     // 본문 카드
     postDetailContainer.innerHTML = `
         <h4 class="post-title">${post.title}</h4>
@@ -84,7 +89,10 @@ function renderPostDetail(post) {
         <div class="post-content">${post.content.replace(/\n/g, '<br>')}</div>
         ${imageGallery}
         <div class="post-stats">
-            <span><i class="material-icons">thumb_up</i> ${post.likeCount}</span>
+            <span id="like-button" style="cursor: pointer;">
+                <i class="material-icons" style="${likeIconColor}">${likeIconClass}</i>
+                <span id="like-count">${post.likeCount}</span>
+            </span>
             <span><i class="material-icons">visibility</i> ${post.viewCount}</span>
             <span><i class="material-icons">comment</i> <span id="comment-count-display">...</span></span>
         </div>
@@ -199,6 +207,49 @@ function handlePostAction(e) {
         handleEditPost();
     } else if (deleteBtn) {
         handleDeletePost();
+    }
+}
+
+// 좋아요/좋아요 취소 이벤트
+async function handleLikeToggle() {
+    if (!currentPost) return;
+
+    const likeButton = document.getElementById('like-button');
+    const likeIcon = likeButton.querySelector('i');
+    const likeCountElement = document.getElementById('like-count');
+
+    // 중복 클릭 방지
+    likeButton.style.pointerEvents = 'none';
+
+    try {
+        if (currentPost.isLiked) {
+            // 좋아요 취소
+            await deletePostLike(postId);
+            currentPost.isLiked = false;
+            currentPost.likeCount--;
+
+            // 아이콘 업데이트
+            likeIcon.textContent = 'thumb_up_off_alt';
+            likeIcon.style.color = '';
+        } else {
+            // 좋아요
+            await postLike(postId);
+            currentPost.isLiked = true;
+            currentPost.likeCount++;
+
+            // 아이콘 업데이트
+            likeIcon.textContent = 'thumb_up';
+            likeIcon.style.color = '#7c3aed';
+        }
+
+        // 좋아요 개수 업데이트
+        likeCountElement.textContent = currentPost.likeCount;
+    } catch (error) {
+        M.toast({ html: '좋아요 처리 실패: ' + error.message });
+        console.error('좋아요 에러: ', error);
+    } finally {
+        // 클릭 다시 활성화
+        likeButton.style.pointerEvents = 'auto';
     }
 }
 
@@ -448,6 +499,13 @@ function setupEventListeners() {
     loadCommentBtn.addEventListener('click', handleFetchCommentList);
     // 게시글 수정/삭제 이벤트
     postActionsContainer.addEventListener('click', handlePostAction);
+    // 좋아요 버튼 이벤트 (이벤트 위임)
+    postDetailContainer.addEventListener('click', (e) => {
+        const likeButton = e.target.closest('#like-button');
+        if (likeButton) {
+            handleLikeToggle();
+        }
+    });
     // 댓글 수정/삭제 이벤트
     commentListContainer.addEventListener('click', handleCommentAction);
 }
