@@ -35,7 +35,12 @@ async function fetchProfile() {
 
         if (profile.profileImage && profile.profileImage.url) {
             profileImagePreview.src = profile.profileImage.url;
+        } else {
+            profileImagePreview.src = '/assets/images/default-profile.png';
         }
+
+        // Materialize label 업데이트
+        M.updateTextFields();
     } catch (error) {
         console.error('프로필 로드 실패:', error);
         M.toast({ html: '프로필을 불러올 수 없습니다.' });

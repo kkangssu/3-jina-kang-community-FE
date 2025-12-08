@@ -1,0 +1,76 @@
+/* profile-edit.css */
+
+.profile-edit-container {
+    display: flex;
+    align-items: center;
+}
+
+.profile-edit-container .row {
+    width: 100%;
+}
+
+.card {
+    margin-top: 0 !important;
+    border-radius: 10px !important;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1) !important;
+    overflow: hidden !important;
+    background-color: rgba(255, 255, 255, 0.55) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+.profile-btn-col {
+    display: flex;
+    align-items: flex-end;
+}
+
+.profile-btn-col .btn {
+    margin-bottom: 20px;
+}
+
+.profile-btn-style {
+    background-color: #dad7ff !important;
+    box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.3) !important;
+    height: 40px;
+    line-height: 40px !important;
+}
+
+.profile-btn-style:hover {
+    background-color: #c9c5f0 !important;
+    box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.5) !important;
+}
+
+/* 버튼 그룹 */
+.button-group {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+    margin-bottom: 10px;
+}
+
+.button-group button {
+    flex: 1;
+    height: 48px;
+    line-height: 48px;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.input-field .prefix.active,
+.input-field input:focus + label {
+    color: #dad7ff !important;
+}
+
+.input-field input:focus {
+    border-bottom: 1px solid #dad7ff !important;
+    box-shadow: 0 1px 0 0 #dad7ff !important;
+}
+
+.input-field input:focus + label {
+    color: #444c66 !important;
+}
+
+.input-field .prefix.active {
+    color: #444c66 !important;
+}
