@@ -1,5 +1,6 @@
 import { signup, checkEmailBeforeSignup, checkNicknameBeforeSignup, uploadFile } from '../../utils/api.js';
 import { ROUTES } from '../../utils/routes.js';
+import { DEFAULT_PROFILE_IMAGE_URL } from '../../utils/config.js';
 
 let emailVerified = false;
 let nicknameVerified = false;
@@ -162,9 +163,14 @@ async function handleSignup(e) {
     try {
         let profileImageData = null;
 
-        // 이미지가 선택된 경우 업로드
+        // 이미지가 선택된 경우 업로드, 아니면 기본 이미지 URL 사용
         if (selectedImage) {
             profileImageData = await uploadFile(selectedImage, 'profiles');
+        } else {
+            // 기본 이미지 URL을 profileImage 형식으로 설정
+            profileImageData = {
+                url: DEFAULT_PROFILE_IMAGE_URL
+            };
         }
 
         const signupData = {
@@ -200,6 +206,9 @@ function setupEventListeners() {
 
 // 초기화
 async function init() {
+    // 기본 프로필 이미지 설정
+    profileImagePreview.src = DEFAULT_PROFILE_IMAGE_URL;
+
     setupEventListeners();
     updateSignupButtonState();
 }
