@@ -17,11 +17,20 @@ nav {
 }
 
 #menu-burger {
-    width: 32px; 
+    width: 32px;
     height: 32px;
     object-fit: cover;
     padding: 4px;
     vertical-align: middle;
+    margin-right: 0;
+}
+
+nav .right {
+    margin-right: 0 !important;
+}
+
+nav ul {
+    margin-right: 0 !important;
 }
 
 nav .header-logo {

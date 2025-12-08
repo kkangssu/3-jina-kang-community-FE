@@ -8,21 +8,26 @@
 
 /* 뒤로가기 버튼 */
 .btn-back {
-    padding-left: 16px;
-    padding-right: 16px;
+    background: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 8px !important;
+    width: 48px;
     height: 48px;
-    line-height: 48px;
-    font-size: 1.1rem;
-    font-weight: 500;
-    background-color: rgba(255, 255, 255, 0.55) !important;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1) !important;
+    min-width: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-back i {
+    color: #444c66;
+    font-size: 28px;
 }
 
 .btn-back:hover {
-    background-color: rgba(255, 255, 255, 0.7) !important;
+    background-color: rgba(0, 0, 0, 0.05) !important;
+    border-radius: 50%;
 }
 
 /* 저장 버튼 */

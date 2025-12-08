@@ -22,7 +22,7 @@ const postSaveBtn = document.getElementById('post-save-btn');
 function init() {
     // 이벤트리스너 등록
     backBtn.addEventListener('click', handleBackClick);
-    postForm.addEventListener('submit', handleSubmit);
+    postSaveBtn.addEventListener('click', handleSubmit);
     btnFile.addEventListener('click', () => fileInput.click());
     fileInput.addEventListener('change', handleFileSelect);
 }
