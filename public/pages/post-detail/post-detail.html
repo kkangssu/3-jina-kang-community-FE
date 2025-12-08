@@ -4,56 +4,62 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>login</title>
-        
+
         <!-- Materialize CSS CDN -->
          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
         <!-- Material Icons -->
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         <!-- 공통 CSS -->
         <link rel="stylesheet" href="../../styles/common.css"></link>
-        <!-- 게시글 리스트 페이지 CSS -->
+        <link rel="stylesheet" href="../../styles/header.css"></link>
+        <!-- 게시글 상세 페이지 CSS -->
         <link rel="stylesheet" href="./post-detail.css">
-     
+
     </head>
     <body>
         <header></header>
         <main class="container">
             <div class="row">
                 <div class="col s12 m8 offset-m2 l6 offset-l3">
-                    <!-- 게시글 상세 -->
-                    <div id="post-detail-container" class="post-detail"></div>
-                    <!-- 댓글 작성 -->
-                    <div id="comment-write-container" class="comment-write">
-                        <div class="card-content">
-                            <div class="input-field">
-                                <textarea
-                                id="comment-content" 
-                                class="materialize-textarea" 
-                                placeholder="댓글을 입력해주세요."
-                                maxlength="500"></textarea>
-                                <span class="helper-text" data-error="500자 이하로 입력해주세요.">
-                                    <span id="comment-length">0</span>/500
-                                </span>
-                            </div>
-                            <div class="right-align">
-                                <button 
-                                id="submit-comment-btn" 
-                                class="btn waves-effect waves-light purple lighten-4" 
-                                type="submit">
-                                    등록
-                                </button>
-                            </div>
+                    <!-- 헤더: 뒤로가기 / 수정/삭제 버튼 -->
+                    <div class="post-detail-header">
+                        <button type="button" id="back-btn" class="btn waves-effect waves-light btn-back">
+                            <i class="material-icons">arrow_back</i>
+                        </button>
+                        <div id="post-actions" class="post-actions"></div>
+                    </div>
+
+                    <!-- 게시글 상세 카드 -->
+                    <div id="post-detail-container" class="post-detail-card"></div>
+
+                    <!-- 댓글 작성 카드 -->
+                    <div id="comment-write-container" class="comment-write-card">
+                        <textarea
+                            id="comment-content"
+                            placeholder="댓글을 입력해주세요."
+                            maxlength="500"></textarea>
+                        <div class="comment-write-footer">
+                            <span class="comment-length">
+                                <span id="comment-length">0</span>/500
+                            </span>
+                            <button
+                                id="submit-comment-btn"
+                                class="btn waves-effect waves-light btn-submit"
+                                type="button">
+                                작성
+                            </button>
                         </div>
                     </div>
+
                     <!-- 댓글 목록 -->
-                    <div id="comment-list-container" class="comment-list">
-                    </div>
+                    <div id="comment-list-container" class="comment-list"></div>
+
                     <!-- 더보기 버튼 -->
-                    <div id="load-comment-container" class="load-comment">
-                        <button 
-                        id="load-comment-btn"
-                        class="btn waves-effect waves-light purple lighten-4" 
-                        type="submit">
+                    <div id="load-comment-container" class="load-comment-container">
+                        <button
+                            id="load-comment-btn"
+                            class="btn waves-effect waves-light btn-load-more"
+                            type="button">
                             더보기
                         </button>
                     </div>
