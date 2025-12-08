@@ -91,7 +91,7 @@ async function handleCheckNickname() {
     try {
         const response = await checkNickname(nickname);
 
-        if (response.data) {
+        if (response.success) {
             M.toast({ html: '사용 가능한 닉네임입니다.' });
             nicknameVerified = true;
             updateSaveButtonState();
