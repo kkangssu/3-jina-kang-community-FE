@@ -137,7 +137,6 @@ async function fetchCommentList(cursor = null) {
         const commentList = apiData.data;
 
         if (cursor === null && commentList.data.length === 0) {
-            commentListContainer.innerHTML = '<div class="no-comment">댓글이 없습니다.</div>';
             updateCommentCount(0);
             updateLoadCommentButton(false);
             return;
